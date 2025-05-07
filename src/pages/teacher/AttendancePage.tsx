@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -155,6 +154,7 @@ export default function AttendancePage() {
               <AttendanceChart
                 data={attendanceData}
                 showLegend={true}
+                title="Attendance Trends"
               />
             </CardContent>
           </Card>

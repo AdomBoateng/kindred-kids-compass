@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -11,6 +10,14 @@ import { mockStudents, mockClasses } from "@/lib/mock-data";
 import { calculateAge } from "@/lib/date-utils";
 import { ArrowLeft, Calendar, Activity, ClipboardList } from "lucide-react";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
+import { 
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from "@/components/ui/table";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -163,7 +170,7 @@ export default function StudentProfilePage() {
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-muted-foreground">Special Notes</p>
-                  <p className="font-medium">{student.specialNotes || "No special notes"}</p>
+                  <p className="font-medium">{student.notes || "No special notes"}</p>
                 </div>
               </div>
             </CardContent>

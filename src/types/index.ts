@@ -1,4 +1,3 @@
-
 export type UserRole = "admin" | "teacher";
 
 export interface User {
@@ -21,6 +20,7 @@ export interface Student {
   classId: string;
   avatar?: string;
   joinDate: string;
+  gender?: "male" | "female" | "other";
 }
 
 export interface Class {

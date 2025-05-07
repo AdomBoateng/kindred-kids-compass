@@ -10,19 +10,23 @@ interface AttendanceDataPoint {
 
 interface AttendanceChartProps {
   data: AttendanceDataPoint[];
-  title: string;
+  title?: string;
   description?: string;
+  showLegend?: boolean;
+  height?: number;
 }
 
-export function AttendanceChart({ data, title, description }: AttendanceChartProps) {
+export function AttendanceChart({ data, title, description, showLegend = true, height = 300 }: AttendanceChartProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-      </CardHeader>
+      {(title || description) && (
+        <CardHeader>
+          {title && <CardTitle>{title}</CardTitle>}
+          {description && <CardDescription>{description}</CardDescription>}
+        </CardHeader>
+      )}
       <CardContent>
-        <div className="h-[300px]">
+        <div className={`h-[${height}px]`}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}

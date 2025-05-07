@@ -88,14 +88,14 @@ export default function StudentsPage() {
             <div className="bg-muted/50 p-4 rounded-md">
               <div className="text-sm text-muted-foreground">Boys</div>
               <div className="text-2xl font-semibold">
-                {classStudents.filter(s => s.gender === 'male').length}
+                {classStudents.filter(s => s.gender === 'male').length || 0}
               </div>
             </div>
             
             <div className="bg-muted/50 p-4 rounded-md">
               <div className="text-sm text-muted-foreground">Girls</div>
               <div className="text-2xl font-semibold">
-                {classStudents.filter(s => s.gender === 'female').length}
+                {classStudents.filter(s => s.gender === 'female').length || 0}
               </div>
             </div>
             

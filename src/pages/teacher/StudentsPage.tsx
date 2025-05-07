@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -29,6 +30,7 @@ import { Link } from "react-router-dom";
 export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [classFilter, setClassFilter] = useState("all");
+  const [activeView, setActiveView] = useState("grid");
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
   const teacherClassId = "1";
@@ -116,82 +118,82 @@ export default function StudentsPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Student List</h2>
           <TabsList>
-            <TabsTrigger value="grid">Grid</TabsTrigger>
-            <TabsTrigger value="list">List</TabsTrigger>
+            <TabsTrigger value="grid" onClick={() => setActiveView("grid")}>Grid</TabsTrigger>
+            <TabsTrigger value="list" onClick={() => setActiveView("list")}>List</TabsTrigger>
           </TabsList>
         </div>
-      </Tabs>
-      
-      <TabsContent value="grid" className="mt-6">
-        {filteredStudents.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium mb-2">No students found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredStudents.map(student => (
-              <StudentCard 
-                key={student.id} 
-                student={student}
-                classInfo={{
-                  id: teacherClassId,
-                  name: teacherClass?.name || "Preschool Class"
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </TabsContent>
-      
-      <TabsContent value="list">
-        {filteredStudents.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium mb-2">No students found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
-          </div>
-        ) : (
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Age</TableHead>
-                  <TableHead>Guardian</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents.map(student => (
-                  <TableRow key={student.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage 
-                            src={student.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${student.firstName} ${student.lastName}`}
-                            alt={`${student.firstName} ${student.lastName}`}
-                          />
-                          <AvatarFallback>{student.firstName[0]}{student.lastName[0]}</AvatarFallback>
-                        </Avatar>
-                        <span>{student.firstName} {student.lastName}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()}</TableCell>
-                    <TableCell>{student.guardianName}</TableCell>
-                    <TableCell>{student.guardianContact}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/student/${student.id}`}>View</Link>
-                      </Button>
-                    </TableCell>
+        
+        <TabsContent value="grid" className="mt-6">
+          {filteredStudents.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium mb-2">No students found</h3>
+              <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredStudents.map(student => (
+                <StudentCard 
+                  key={student.id} 
+                  student={student}
+                  classInfo={{
+                    id: teacherClassId,
+                    name: teacherClass?.name || "Preschool Class"
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="list">
+          {filteredStudents.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium mb-2">No students found</h3>
+              <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          ) : (
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Age</TableHead>
+                    <TableHead>Guardian</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        )}
-      </TabsContent>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents.map(student => (
+                    <TableRow key={student.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage 
+                              src={student.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${student.firstName} ${student.lastName}`}
+                              alt={`${student.firstName} ${student.lastName}`}
+                            />
+                            <AvatarFallback>{student.firstName[0]}{student.lastName[0]}</AvatarFallback>
+                          </Avatar>
+                          <span>{student.firstName} {student.lastName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()}</TableCell>
+                      <TableCell>{student.guardianName}</TableCell>
+                      <TableCell>{student.guardianContact}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/student/${student.id}`}>View</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </Layout>
   );
 }

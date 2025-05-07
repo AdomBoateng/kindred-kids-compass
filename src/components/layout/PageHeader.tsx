@@ -5,11 +5,12 @@ interface PageHeaderProps {
   title: string;
   description?: string;
   children?: ReactNode;
+  className?: string;
 }
 
-export function PageHeader({ title, description, children }: PageHeaderProps) {
+export function PageHeader({ title, description, children, className = "" }: PageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b">
+    <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b ${className}`}>
       <div>
         <h1 className="text-2xl md:text-3xl font-heading font-bold">{title}</h1>
         {description && <p className="text-muted-foreground mt-1">{description}</p>}

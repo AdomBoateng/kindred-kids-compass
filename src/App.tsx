@@ -16,6 +16,12 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 
 // Teacher pages
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
+import StudentsPage from "./pages/teacher/StudentsPage";
+import StudentProfilePage from "./pages/teacher/StudentProfilePage";
+import AttendancePage from "./pages/teacher/AttendancePage";
+import RecordAttendancePage from "./pages/teacher/RecordAttendancePage";
+import PerformancePage from "./pages/teacher/PerformancePage";
+import RecordPerformancePage from "./pages/teacher/RecordPerformancePage";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +43,12 @@ const App = () => (
             
             {/* Teacher routes */}
             <Route path="/teacher/dashboard" element={<TeacherDashboardPage />} />
+            <Route path="/teacher/students" element={<StudentsPage />} />
+            <Route path="/student/:id" element={<StudentProfilePage />} />
+            <Route path="/teacher/attendance" element={<AttendancePage />} />
+            <Route path="/teacher/attendance/new" element={<RecordAttendancePage />} />
+            <Route path="/teacher/performance" element={<PerformancePage />} />
+            <Route path="/teacher/performance/new" element={<RecordPerformancePage />} />
             <Route path="/teacher" element={<Navigate to="/teacher/dashboard" replace />} />
             
             {/* Catch-all route */}

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -8,8 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { mockStudents, mockClasses } from "@/lib/mock-data";
 import { calculateAge } from "@/lib/date-utils";
-import { ArrowLeft, Calendar, Activity, ClipboardList } from "lucide-react";
+import { ArrowLeft, Calendar, Activity, ClipboardList, FileEdit } from "lucide-react";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
+import { StudentFormSheet } from "@/components/forms/StudentFormSheet";
 import { 
   Table,
   TableHeader,
@@ -22,6 +24,7 @@ import {
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   
   const student = mockStudents.find(s => s.id === id);
   
@@ -83,7 +86,18 @@ export default function StudentProfilePage() {
         </div>
         
         <div className="flex-grow text-center sm:text-left">
-          <h1 className="text-3xl font-bold">{fullName}</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+            <h1 className="text-3xl font-bold">{fullName}</h1>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="sm:ml-4"
+              onClick={() => setIsEditFormOpen(true)}
+            >
+              <FileEdit className="h-4 w-4 mr-2" />
+              Edit Details
+            </Button>
+          </div>
           <p className="text-muted-foreground mb-4">{studentClass?.name || "Unassigned"} • {age} years old</p>
           
           <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
@@ -341,6 +355,13 @@ export default function StudentProfilePage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <StudentFormSheet 
+        isOpen={isEditFormOpen}
+        onClose={() => setIsEditFormOpen(false)}
+        student={student}
+        classId={student.classId}
+      />
     </Layout>
   );
 }

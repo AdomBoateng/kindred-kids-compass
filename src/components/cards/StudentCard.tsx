@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { calculateAge } from "@/lib/date-utils";
+import { FileEdit } from "lucide-react";
 
 interface StudentCardProps {
   student: Student;
@@ -12,9 +13,10 @@ interface StudentCardProps {
     id: string;
     name: string;
   };
+  onEdit?: () => void;
 }
 
-export function StudentCard({ student, classInfo }: StudentCardProps) {
+export function StudentCard({ student, classInfo, onEdit }: StudentCardProps) {
   const fullName = `${student.firstName} ${student.lastName}`;
   const age = calculateAge(student.dateOfBirth);
   const isBirthdaySoon = isUpcomingBirthday(student.dateOfBirth);
@@ -63,10 +65,24 @@ export function StudentCard({ student, classInfo }: StudentCardProps) {
             </div>
           </div>
           
-          <div className="mt-auto pt-2">
+          <div className="mt-auto pt-2 flex flex-col gap-2">
             <Button asChild className="w-full" variant="outline">
               <Link to={`/student/${student.id}`}>View Profile</Link>
             </Button>
+            
+            {onEdit && (
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  onEdit();
+                }}
+              >
+                <FileEdit className="h-4 w-4 mr-2" />
+                Edit Details
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>

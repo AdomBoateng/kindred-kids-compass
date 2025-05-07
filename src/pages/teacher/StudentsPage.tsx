@@ -24,13 +24,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
-import { Search } from "lucide-react";
+import { Search, Plus, FileEdit } from "lucide-react";
 import { Link } from "react-router-dom";
+import { StudentFormSheet } from "@/components/forms/StudentFormSheet";
 
 export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [classFilter, setClassFilter] = useState("all");
   const [activeView, setActiveView] = useState("grid");
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
   const teacherClassId = "1";
@@ -43,6 +46,15 @@ export default function StudentsPage() {
     const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
   });
+
+  const handleEditStudent = (student) => {
+    setEditingStudent(student);
+  };
+
+  const handleCloseForm = () => {
+    setIsAddStudentOpen(false);
+    setEditingStudent(null);
+  };
   
   return (
     <Layout>
@@ -72,6 +84,11 @@ export default function StudentsPage() {
               <SelectItem value={teacherClassId}>{teacherClass?.name || "Preschool Class"}</SelectItem>
             </SelectContent>
           </Select>
+          
+          <Button onClick={() => setIsAddStudentOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Student
+          </Button>
         </div>
       </div>
       
@@ -139,6 +156,7 @@ export default function StudentsPage() {
                     id: teacherClassId,
                     name: teacherClass?.name || "Preschool Class"
                   }}
+                  onEdit={() => handleEditStudent(student)}
                 />
               ))}
             </div>
@@ -182,9 +200,19 @@ export default function StudentsPage() {
                       <TableCell>{student.guardianName}</TableCell>
                       <TableCell>{student.guardianContact}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/student/${student.id}`}>View</Link>
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link to={`/student/${student.id}`}>View</Link>
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditStudent(student)}
+                          >
+                            <FileEdit className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -194,6 +222,13 @@ export default function StudentsPage() {
           )}
         </TabsContent>
       </Tabs>
+      
+      <StudentFormSheet 
+        isOpen={isAddStudentOpen || editingStudent !== null} 
+        onClose={handleCloseForm}
+        student={editingStudent}
+        classId={teacherClassId}
+      />
     </Layout>
   );
 }

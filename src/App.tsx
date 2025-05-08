@@ -13,6 +13,8 @@ import NotFound from "./pages/NotFound";
 
 // Admin pages
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 
 // Teacher pages
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
@@ -23,6 +25,8 @@ import RecordAttendancePage from "./pages/teacher/RecordAttendancePage";
 import PerformancePage from "./pages/teacher/PerformancePage";
 import RecordPerformancePage from "./pages/teacher/RecordPerformancePage";
 import ReportsPage from "./pages/teacher/ReportsPage";
+import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
+import TeacherSettingsPage from "./pages/teacher/TeacherSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +44,8 @@ const App = () => (
             
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/profile" element={<AdminProfilePage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             
             {/* Teacher routes */}
@@ -51,6 +57,8 @@ const App = () => (
             <Route path="/teacher/performance" element={<PerformancePage />} />
             <Route path="/teacher/performance/new" element={<RecordPerformancePage />} />
             <Route path="/teacher/reports" element={<ReportsPage />} />
+            <Route path="/teacher/profile" element={<TeacherProfilePage />} />
+            <Route path="/teacher/settings" element={<TeacherSettingsPage />} />
             <Route path="/teacher" element={<Navigate to="/teacher/dashboard" replace />} />
             
             {/* Catch-all route */}

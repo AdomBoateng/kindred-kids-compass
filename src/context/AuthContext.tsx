@@ -1,29 +1,19 @@
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { User, UserRole } from "@/types";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-// Mock users for demo
-const MOCK_USERS = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@church.org",
-    password: "admin123",
-    role: "admin" as UserRole,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
-  },
-  {
-    id: "2",
-    name: "Sarah Johnson",
-    email: "teacher@church.org",
-    password: "teacher123",
-    role: "teacher" as UserRole,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=teacher",
-  },
-];
+// Define User type
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'teacher';
+  avatar?: string;
+  phone?: string;
+  bio?: string;
+}
 
+// Define AuthContext interface
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -31,97 +21,69 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
+// Create Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock users for demo
+const mockUsers = [
+  {
+    id: '1',
+    name: 'Admin User',
+    email: 'admin@kindredkids.church',
+    role: 'admin' as const,
+    avatar: 'https://i.pravatar.cc/150?img=68',
+    phone: '(555) 123-4567',
+    bio: 'Church administrator with a passion for helping children grow in their faith.'
+  },
+  {
+    id: '2',
+    name: 'Teacher User',
+    email: 'teacher@kindredkids.church',
+    role: 'teacher' as const,
+    avatar: 'https://i.pravatar.cc/150?img=32',
+    phone: '(555) 987-6543',
+    bio: 'Dedicated Sunday school teacher with 5 years of experience teaching preschool children.'
+  }
+];
+
+// Create AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Check for saved user on initial load
-  useEffect(() => {
-    const savedUser = localStorage.getItem("ministry_user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error("Failed to parse saved user", error);
-        localStorage.removeItem("ministry_user");
-      }
-    }
-    setIsLoading(false);
-  }, []);
-
-  // Protect routes based on authentication and role
-  useEffect(() => {
-    const publicRoutes = ["/login", "/"];
-    
-    if (!isLoading) {
-      // If not authenticated and trying to access protected route
-      if (!user && !publicRoutes.includes(location.pathname)) {
-        navigate("/login");
-        toast({
-          title: "Authentication required",
-          description: "Please log in to access this page",
-          variant: "destructive",
-        });
-      }
-      
-      // If authenticated but on login page, redirect to dashboard
-      if (user && location.pathname === "/login") {
-        navigate(user.role === "admin" ? "/admin/dashboard" : "/teacher/dashboard");
-      }
-      
-      // Role-based access control
-      if (user) {
-        // Admin trying to access teacher routes
-        if (user.role === "admin" && location.pathname.startsWith("/teacher")) {
-          navigate("/admin/dashboard");
-        }
-        
-        // Teacher trying to access admin routes
-        if (user.role === "teacher" && location.pathname.startsWith("/admin")) {
-          navigate("/teacher/dashboard");
-        }
-      }
-    }
-  }, [user, isLoading, location.pathname, navigate, toast]);
+  
+  // Get user from localStorage or set to null
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : mockUsers[1]; // Default to teacher for demo
+  });
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
     try {
-      const foundUser = MOCK_USERS.find(
-        (u) => u.email === email && u.password === password
-      );
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Find user by email (simplified auth for demo)
+      const foundUser = mockUsers.find(u => u.email === email);
       
       if (!foundUser) {
-        toast({
-          title: "Login Failed",
-          description: "Invalid email or password",
-          variant: "destructive",
-        });
-        throw new Error("Invalid credentials");
+        throw new Error('Invalid credentials');
       }
       
-      // Remove password before storing
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem("ministry_user", JSON.stringify(userWithoutPassword));
+      // Set user in state and localStorage
+      setUser(foundUser);
+      localStorage.setItem('user', JSON.stringify(foundUser));
       
-      toast({
-        title: "Welcome back!",
-        description: `Logged in as ${foundUser.name}`,
-      });
-      
-      navigate(
-        foundUser.role === "admin" ? "/admin/dashboard" : "/teacher/dashboard"
-      );
+      // Redirect based on role
+      if (foundUser.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/teacher/dashboard');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -129,28 +91,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("ministry_user");
-    navigate("/login");
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully",
-    });
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
-  const value = {
-    user,
-    login,
-    logout,
-    isLoading,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
+// Custom hook for using auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

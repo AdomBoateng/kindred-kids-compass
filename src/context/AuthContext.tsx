@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Get user from localStorage or set to null
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : mockUsers[1]; // Default to teacher for demo
+    return savedUser ? JSON.parse(savedUser) : null; // Changed default to null instead of mockUsers[1]
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -64,8 +64,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Find user by email (simplified auth for demo)
-      const foundUser = mockUsers.find(u => u.email === email);
+      // Fix login to work with demo credentials
+      let foundUser = null;
+      
+      // Check if using admin credentials from LoginPage
+      if (email === 'admin@church.org' && password === 'admin123') {
+        foundUser = mockUsers.find(u => u.role === 'admin');
+      } 
+      // Check if using teacher credentials from LoginPage
+      else if (email === 'teacher@church.org' && password === 'teacher123') {
+        foundUser = mockUsers.find(u => u.role === 'teacher');
+      }
+      // Also allow direct login with mockUser emails
+      else {
+        foundUser = mockUsers.find(u => u.email === email);
+      }
       
       if (!foundUser) {
         throw new Error('Invalid credentials');

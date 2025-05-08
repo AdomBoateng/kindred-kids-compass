@@ -9,17 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
-import { FileChart, FileText } from "lucide-react";
+import { FileChartLine, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { mockClasses, mockStudents } from "@/lib/mock-data";
 import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 export default function ReportsPage() {
   const [reportType, setReportType] = useState("attendance");
   const [classId, setClassId] = useState("1"); // Default to first class
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedMonth, setSelectedMonth] = useState<string>(format(new Date(), "MMMM yyyy"));
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
   // Get the current class data
   const currentClass = mockClasses.find(c => c.id === classId) || mockClasses[0];
@@ -91,8 +92,8 @@ export default function ReportsPage() {
                         <Calendar
                           mode="range"
                           selected={dateRange}
-                          onSelect={setDateRange}
-                          className="rounded-md border"
+                          onSelect={(range) => setDateRange(range)}
+                          className="rounded-md border pointer-events-auto"
                         />
                       </div>
                     </div>
@@ -127,11 +128,11 @@ export default function ReportsPage() {
                   {reportType === "attendance" && (
                     <div className="space-y-4">
                       <div className="text-center p-4 bg-background rounded-md">
-                        <FileChart className="h-12 w-12 mx-auto text-muted-foreground" />
+                        <FileChartLine className="h-12 w-12 mx-auto text-muted-foreground" />
                         <h4 className="font-medium mt-2">Attendance Report</h4>
                         <p className="text-sm text-muted-foreground">
-                          {currentClass?.name} • {dateRange ? 
-                            `${format(dateRange.from, "PPP")} - ${format(dateRange.to, "PPP")}` : 
+                          {currentClass?.name} • {dateRange && dateRange.from ? 
+                            `${format(dateRange.from, "PPP")}${dateRange.to ? ` - ${format(dateRange.to, "PPP")}` : ''}` : 
                             "Select date range"}
                         </p>
                       </div>
@@ -151,7 +152,7 @@ export default function ReportsPage() {
                   {reportType === "performance" && (
                     <div className="space-y-4">
                       <div className="text-center p-4 bg-background rounded-md">
-                        <FileChart className="h-12 w-12 mx-auto text-muted-foreground" />
+                        <FileChartLine className="h-12 w-12 mx-auto text-muted-foreground" />
                         <h4 className="font-medium mt-2">Performance Report</h4>
                         <p className="text-sm text-muted-foreground">
                           {currentClass?.name} • {selectedMonth}

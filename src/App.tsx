@@ -15,10 +15,17 @@ import NotFound from "./pages/NotFound";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import TeachersPage from "./pages/admin/TeachersPage";
+import ClassesPage from "./pages/admin/ClassesPage";
+import StudentsPage from "./pages/admin/StudentsPage";
+import NewStudentPage from "./pages/admin/NewStudentPage";
+import NewTeacherPage from "./pages/admin/NewTeacherPage";
+import AttendanceReportsPage from "./pages/admin/AttendanceReportsPage";
+import AssignTeachersPage from "./pages/admin/AssignTeachersPage";
 
 // Teacher pages
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
-import StudentsPage from "./pages/teacher/StudentsPage";
+import StudentsPage as TeacherStudentsPage from "./pages/teacher/StudentsPage";
 import StudentProfilePage from "./pages/teacher/StudentProfilePage";
 import AttendancePage from "./pages/teacher/AttendancePage";
 import RecordAttendancePage from "./pages/teacher/RecordAttendancePage";
@@ -44,13 +51,20 @@ const App = () => (
             
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/teachers" element={<TeachersPage />} />
+            <Route path="/admin/teachers/new" element={<NewTeacherPage />} />
+            <Route path="/admin/classes" element={<ClassesPage />} />
+            <Route path="/admin/classes/assign" element={<AssignTeachersPage />} />
+            <Route path="/admin/students" element={<StudentsPage />} />
+            <Route path="/admin/students/new" element={<NewStudentPage />} />
+            <Route path="/admin/attendance/reports" element={<AttendanceReportsPage />} />
             <Route path="/admin/profile" element={<AdminProfilePage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             
             {/* Teacher routes */}
             <Route path="/teacher/dashboard" element={<TeacherDashboardPage />} />
-            <Route path="/teacher/students" element={<StudentsPage />} />
+            <Route path="/teacher/students" element={<TeacherStudentsPage />} />
             <Route path="/student/:id" element={<StudentProfilePage />} />
             <Route path="/teacher/attendance" element={<AttendancePage />} />
             <Route path="/teacher/attendance/new" element={<RecordAttendancePage />} />

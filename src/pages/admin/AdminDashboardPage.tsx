@@ -7,6 +7,9 @@ import { AttendanceChart } from "@/components/charts/AttendanceChart";
 import { PerformanceChart } from "@/components/charts/PerformanceChart";
 import { useAuth } from "@/context/AuthContext";
 import { mockStudents, mockClasses, mockUsers } from "@/lib/mock-data";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { UserPlus, Users, FileChartLine, UserCheck } from "lucide-react";
 
 // Sample data for attendance chart
 const attendanceData = [
@@ -105,25 +108,48 @@ export default function AdminDashboardPage() {
             emptyMessage="No upcoming birthdays in the next 30 days."
           />
           
-          <div className="dashboard-card">
+          <div className="bg-card border rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <a href="/admin/students/new" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Add New Student</div>
-                <div className="text-sm text-muted-foreground">Register a new child to the system</div>
-              </a>
-              <a href="/admin/teachers/new" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Add New Teacher</div>
-                <div className="text-sm text-muted-foreground">Register a teacher account</div>
-              </a>
-              <a href="/admin/attendance" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">View Attendance Reports</div>
-                <div className="text-sm text-muted-foreground">Check attendance history by class</div>
-              </a>
-              <a href="/admin/classes/assign" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Assign Teachers to Classes</div>
-                <div className="text-sm text-muted-foreground">Manage teacher-class assignments</div>
-              </a>
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link to="/admin/students/new" className="flex items-center">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  <div>
+                    <div className="font-medium">Add New Student</div>
+                    <div className="text-xs text-muted-foreground">Register a new child to the system</div>
+                  </div>
+                </Link>
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link to="/admin/teachers/new" className="flex items-center">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  <div>
+                    <div className="font-medium">Add New Teacher</div>
+                    <div className="text-xs text-muted-foreground">Register a teacher account</div>
+                  </div>
+                </Link>
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link to="/admin/attendance/reports" className="flex items-center">
+                  <FileChartLine className="mr-2 h-4 w-4" />
+                  <div>
+                    <div className="font-medium">View Attendance Reports</div>
+                    <div className="text-xs text-muted-foreground">Check attendance history by class</div>
+                  </div>
+                </Link>
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link to="/admin/classes/assign" className="flex items-center">
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  <div>
+                    <div className="font-medium">Assign Teachers to Classes</div>
+                    <div className="text-xs text-muted-foreground">Manage teacher-class assignments</div>
+                  </div>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

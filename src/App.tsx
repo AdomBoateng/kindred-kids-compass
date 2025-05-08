@@ -22,6 +22,7 @@ import AttendancePage from "./pages/teacher/AttendancePage";
 import RecordAttendancePage from "./pages/teacher/RecordAttendancePage";
 import PerformancePage from "./pages/teacher/PerformancePage";
 import RecordPerformancePage from "./pages/teacher/RecordPerformancePage";
+import ReportsPage from "./pages/teacher/ReportsPage";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/teacher/attendance/new" element={<RecordAttendancePage />} />
             <Route path="/teacher/performance" element={<PerformancePage />} />
             <Route path="/teacher/performance/new" element={<RecordPerformancePage />} />
+            <Route path="/teacher/reports" element={<ReportsPage />} />
             <Route path="/teacher" element={<Navigate to="/teacher/dashboard" replace />} />
             
             {/* Catch-all route */}

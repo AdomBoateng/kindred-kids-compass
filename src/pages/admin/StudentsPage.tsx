@@ -76,7 +76,6 @@ export default function StudentsPage() {
                 lastName: student.lastName,
                 avatar: student.avatar,
                 classId: student.classId,
-                className: studentClass?.name || "Unassigned",
                 age: new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear(),
                 joinDate: format(new Date(student.joinDate), "MMM d, yyyy")
               }}

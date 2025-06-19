@@ -31,8 +31,15 @@ export default function LoginPage() {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30">
-      <div className="w-full max-w-md p-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 relative overflow-hidden">
+      {/* Background Church Logo */}
+      <img 
+        src="/lovable-uploads/557871b8-5f11-4521-934c-b35a3c6aa666.png" 
+        alt="Church Logo Background" 
+        className="rc-floating-remcash"
+      />
+      
+      <div className="w-full max-w-md p-4 relative z-10">
         <div className="flex flex-col items-center mb-8">
           <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center mb-4">
             <span className="text-primary-foreground font-bold text-2xl">KC</span>
@@ -88,6 +95,17 @@ export default function LoginPage() {
           </CardFooter>
         </Card>
       </div>
+      
+      <style jsx>{`
+        .rc-floating-remcash {
+          position: absolute;
+          bottom: -20px;
+          right: -50px;
+          opacity: 0.06;
+          z-index: 1;
+          transform: scale(0.9);
+        }
+      `}</style>
     </div>
   );
 }

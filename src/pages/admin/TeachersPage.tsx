@@ -55,9 +55,6 @@ export default function TeachersPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{teacher.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{teacher.email}</p>
-                {teacher.phone && (
-                  <p className="text-xs text-muted-foreground">{teacher.phone}</p>
-                )}
               </div>
               <Button variant="ghost" size="icon" asChild>
                 <Link to={`/admin/teachers/${teacher.id}`}>

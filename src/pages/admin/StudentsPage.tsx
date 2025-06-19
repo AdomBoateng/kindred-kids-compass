@@ -72,7 +72,8 @@ export default function StudentsPage() {
               key={student.id}
               student={{
                 id: student.id,
-                name: `${student.firstName} ${student.lastName}`,
+                firstName: student.firstName,
+                lastName: student.lastName,
                 avatar: student.avatar,
                 classId: student.classId,
                 className: studentClass?.name || "Unassigned",

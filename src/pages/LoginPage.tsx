@@ -40,9 +40,9 @@ export default function LoginPage() {
           position: 'absolute',
           bottom: '-20px',
           right: '-50px',
-          opacity: 0.06,
+          opacity: 0.15,
           zIndex: 1,
-          transform: 'scale(0.9)'
+          transform: 'scale(1.3)'
         }}
       />
       

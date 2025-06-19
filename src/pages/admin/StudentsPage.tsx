@@ -76,6 +76,9 @@ export default function StudentsPage() {
                 lastName: student.lastName,
                 avatar: student.avatar,
                 classId: student.classId,
+                dateOfBirth: student.dateOfBirth,
+                guardianName: student.guardianName,
+                guardianContact: student.guardianContact,
                 joinDate: format(new Date(student.joinDate), "MMM d, yyyy")
               }}
               href={`/student/${student.id}`}

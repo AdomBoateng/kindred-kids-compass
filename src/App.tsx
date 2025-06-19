@@ -25,7 +25,7 @@ import AssignTeachersPage from "./pages/admin/AssignTeachersPage";
 
 // Teacher pages
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
-import StudentsPage as TeacherStudentsPage from "./pages/teacher/StudentsPage";
+import TeacherStudentsPage from "./pages/teacher/StudentsPage";
 import StudentProfilePage from "./pages/teacher/StudentProfilePage";
 import AttendancePage from "./pages/teacher/AttendancePage";
 import RecordAttendancePage from "./pages/teacher/RecordAttendancePage";

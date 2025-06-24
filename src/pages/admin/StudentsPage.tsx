@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -83,18 +84,8 @@ export default function StudentsPage() {
           return (
             <StudentCard
               key={student.id}
-              student={{
-                id: student.id,
-                firstName: student.firstName,
-                lastName: student.lastName,
-                avatar: student.avatar,
-                classId: student.classId,
-                dateOfBirth: student.dateOfBirth,
-                guardianName: student.guardianName,
-                guardianContact: student.guardianContact,
-                joinDate: format(new Date(student.joinDate), "MMM d, yyyy")
-              }}
-              href={`/student/${student.id}`}
+              student={student}
+              classInfo={studentClass ? { id: studentClass.id, name: studentClass.name } : undefined}
             />
           );
         })}

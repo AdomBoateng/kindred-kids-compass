@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/cards/StatCard";
@@ -10,6 +9,7 @@ import { mockStudents, mockClasses, mockUsers } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { UserPlus, Users, FileChartLine, UserCheck } from "lucide-react";
+import logo from "@/assets/logo.png"; // Add this import (adjust if not using alias)
 
 // Sample data for attendance chart
 const attendanceData = [
@@ -60,96 +60,112 @@ export default function AdminDashboardPage() {
   
   return (
     <Layout>
-      <PageHeader 
-        title="Admin Dashboard" 
-        description={`Welcome back, ${user?.name || 'Admin'}`}
+      {/* Background logo image */}
+      <img
+        src={logo}
+        alt="Kindred Kids Compass Logo"
+        aria-hidden="true"
+        className="pointer-events-none select-none fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
+        style={{
+          width: "50vw",
+          marginTop: "10vh",
+          maxWidth: 900,
+          minWidth: 300,
+          zIndex: 0,
+        }}
       />
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard 
-          title="Total Students" 
-          value={mockStudents.length} 
-          trend={5}
-          trendLabel="vs. last month"
-          variant="purple"
+      <div className="relative z-10">
+        <PageHeader 
+          title="Admin Dashboard" 
+          description={`Welcome back, ${user?.name || 'Admin'}`}
         />
-        <StatCard 
-          title="Total Classes" 
-          value={mockClasses.length}
-          variant="outline" 
-        />
-        <StatCard 
-          title="Teachers" 
-          value={teacherCount}
-          variant="outline" 
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <AttendanceChart 
-            data={attendanceData}
-            title="Attendance Trends"
-            description="Monthly attendance percentage across all classes"
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard 
+            title="Total Students" 
+            value={mockStudents.length} 
+            trend={5}
+            trendLabel="vs. last month"
+            variant="purple"
           />
-          
-          <div className="mt-8">
-            <PerformanceChart 
-              data={performanceData}
-              title="Test Performance"
-              description="Average scores and participation rates"
-            />
-          </div>
+          <StatCard 
+            title="Total Classes" 
+            value={mockClasses.length}
+            variant="outline" 
+          />
+          <StatCard 
+            title="Teachers" 
+            value={teacherCount}
+            variant="outline" 
+          />
         </div>
         
-        <div className="space-y-8">
-          <BirthdayList 
-            students={birthdayStudents}
-            emptyMessage="No upcoming birthdays in the next 30 days."
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <AttendanceChart 
+              data={attendanceData}
+              title="Attendance Trends"
+              description="Monthly attendance percentage across all classes"
+            />
+            
+            <div className="mt-8">
+              <PerformanceChart 
+                data={performanceData}
+                title="Test Performance"
+                description="Average scores and participation rates"
+              />
+            </div>
+          </div>
           
-          <div className="bg-card border rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link to="/admin/students/new" className="flex items-center">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  <div>
-                    <div className="font-medium">Add New Student</div>
-                    <div className="text-xs text-muted-foreground">Register a new child to the system</div>
-                  </div>
-                </Link>
-              </Button>
-              
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link to="/admin/teachers/new" className="flex items-center">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  <div>
-                    <div className="font-medium">Add New Teacher</div>
-                    <div className="text-xs text-muted-foreground">Register a teacher account</div>
-                  </div>
-                </Link>
-              </Button>
-              
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link to="/admin/attendance/reports" className="flex items-center">
-                  <FileChartLine className="mr-2 h-4 w-4" />
-                  <div>
-                    <div className="font-medium">View Attendance Reports</div>
-                    <div className="text-xs text-muted-foreground">Check attendance history by class</div>
-                  </div>
-                </Link>
-              </Button>
-              
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link to="/admin/classes/assign" className="flex items-center">
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  <div>
-                    <div className="font-medium">Assign Teachers to Classes</div>
-                    <div className="text-xs text-muted-foreground">Manage teacher-class assignments</div>
-                  </div>
-                </Link>
-              </Button>
+          <div className="space-y-8">
+            <BirthdayList 
+              students={birthdayStudents}
+              emptyMessage="No upcoming birthdays in the next 30 days."
+            />
+            
+            <div className="bg-card border rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/admin/students/new" className="flex items-center">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <div>
+                      <div className="font-medium">Add New Student</div>
+                      <div className="text-xs text-muted-foreground">Register a new child to the system</div>
+                    </div>
+                  </Link>
+                </Button>
+                
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/admin/teachers/new" className="flex items-center">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <div>
+                      <div className="font-medium">Add New Teacher</div>
+                      <div className="text-xs text-muted-foreground">Register a teacher account</div>
+                    </div>
+                  </Link>
+                </Button>
+                
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/admin/attendance/reports" className="flex items-center">
+                    <FileChartLine className="mr-2 h-4 w-4" />
+                    <div>
+                      <div className="font-medium">View Attendance Reports</div>
+                      <div className="text-xs text-muted-foreground">Check attendance history by class</div>
+                    </div>
+                  </Link>
+                </Button>
+                
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/admin/classes/assign" className="flex items-center">
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    <div>
+                      <div className="font-medium">Assign Teachers to Classes</div>
+                      <div className="text-xs text-muted-foreground">Manage teacher-class assignments</div>
+                    </div>
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

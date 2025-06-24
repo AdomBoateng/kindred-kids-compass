@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -10,6 +9,7 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { StudentCard } from "@/components/cards/StudentCard";
+import logo from "@/assets/logo.png";
 
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +28,19 @@ export default function StudentsPage() {
 
   return (
     <Layout>
+       {/* Background logo image */}
+      <img
+        src={logo}
+        alt="Kindred Kids Compass Logo"
+        aria-hidden="true"
+        className="pointer-events-none select-none fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
+        style={{
+          width: "50vw",
+          maxWidth: 900,
+          minWidth: 300,
+          zIndex: 0,
+        }}
+      />
       <PageHeader 
         title="Students" 
         description="Manage students and their information" 

@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
+import logo from "@/assets/logo.png";
 
 // Sample attendance data
 const attendanceData = [
@@ -88,6 +89,20 @@ export default function AttendanceReportsPage() {
 
   return (
     <Layout>
+       {/* Background logo image */}
+      <img
+        src={logo}
+        alt="Kindred Kids Compass Logo"
+        aria-hidden="true"
+        className="pointer-events-none select-none fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
+        style={{
+          width: "50vw",
+          marginTop: "10vh",
+          maxWidth: 900,
+          minWidth: 300,
+          zIndex: 0,
+        }}
+      />
       <PageHeader 
         title="Attendance Reports" 
         description="View attendance records and analytics" 

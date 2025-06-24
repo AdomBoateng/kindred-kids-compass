@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import logo from '../assets/logo.png';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -38,18 +38,21 @@ export default function LoginPage() {
         alt="Church Logo Background" 
         style={{
           position: 'absolute',
-          bottom: '-20px',
-          right: '-50px',
-          opacity: 0.15,
+          bottom: '-10px',
+          right: '-10px',
+          opacity: 0.35,
           zIndex: 1,
-          transform: 'scale(1.3)'
+          transform: 'scale(2.3)'
         }}
       />
       
       <div className="w-full max-w-md p-4 relative z-10">
         <div className="flex flex-col items-center mb-8">
           <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center mb-4">
-            <span className="text-primary-foreground font-bold text-2xl">KC</span>
+            <img
+              src={logo}
+              alt="Kindred Kids Compass Logo"
+            />
           </div>
           <h1 className="text-3xl font-bold font-heading">Kindred Kids Compass</h1>
           <p className="text-muted-foreground mt-2">Children's Ministry Management System</p>
@@ -91,7 +94,7 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col items-center">
+          {/* <CardFooter className="flex flex-col items-center">
             <p className="text-sm text-muted-foreground">
               Demo credentials:
             </p>
@@ -99,7 +102,7 @@ export default function LoginPage() {
               <p>Admin: admin@church.org / admin123</p>
               <p>Teacher: teacher@church.org / teacher123</p>
             </div>
-          </CardFooter>
+          </CardFooter> */}
         </Card>
       </div>
     </div>

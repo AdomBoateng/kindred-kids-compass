@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -10,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
+import logo from "@/assets/logo.png"; // Add this import if not present
 
 export default function AssignTeachersPage() {
   const navigate = useNavigate();
@@ -56,6 +56,20 @@ export default function AssignTeachersPage() {
 
   return (
     <Layout>
+      {/* Background logo image */}
+      <img
+        src={logo}
+        alt="Kindred Kids Compass Logo"
+        aria-hidden="true"
+        className="pointer-events-none select-none fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
+        style={{
+          width: "50vw",
+          marginTop: "10vh",
+          maxWidth: 900,
+          minWidth: 300,
+          zIndex: 0,
+        }}
+      />
       <PageHeader 
         title="Assign Teachers to Classes" 
         description="Manage teacher-class assignments" 

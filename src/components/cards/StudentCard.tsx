@@ -1,4 +1,3 @@
-
 import { Student } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,7 +21,9 @@ export function StudentCard({ student, classInfo, onEdit }: StudentCardProps) {
   const isBirthdaySoon = isUpcomingBirthday(student.dateOfBirth);
   
   return (
-    <Card className="card-hover overflow-hidden h-full">
+    <Card
+      className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 card-hover overflow-hidden h-full group"
+    >
       <div className="relative">
         {isBirthdaySoon && (
           <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
@@ -44,24 +45,24 @@ export function StudentCard({ student, classInfo, onEdit }: StudentCardProps) {
           </Avatar>
         </div>
         
-        <h3 className="font-semibold text-center text-lg">{fullName}</h3>
-        <p className="text-muted-foreground text-sm text-center">{age} years old</p>
+        <h3 className="font-semibold text-center text-lg text-white group-hover:text-black">{fullName}</h3>
+        <p className="text-sm text-center text-white group-hover:text-black">{age} years old</p>
         
         {classInfo && (
-          <p className="text-sm text-center mt-1">
+          <p className="text-sm text-center mt-1 text-white group-hover:text-black">
             Class: <span className="font-medium">{classInfo.name}</span>
           </p>
         )}
         
         <div className="mt-4 pt-4 border-t flex flex-col gap-2 justify-end h-full">
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-white group-hover:text-black">
             <div className="flex justify-between">
               <span>Guardian:</span>
-              <span className="font-medium text-foreground">{student.guardianName}</span>
+              <span className="font-medium">{student.guardianName}</span>
             </div>
             <div className="flex justify-between mt-1">
               <span>Phone:</span>
-              <span className="font-medium text-foreground">{student.guardianContact}</span>
+              <span className="font-medium">{student.guardianContact}</span>
             </div>
           </div>
           

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { mockClasses, mockUsers } from "@/lib/mock-data";
 import { Link } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 export default function ClassesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +28,19 @@ export default function ClassesPage() {
 
   return (
     <Layout>
+       {/* Background logo image */}
+      <img
+        src={logo}
+        alt="Kindred Kids Compass Logo"
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
+        style={{
+          width: "20vw",
+          maxWidth: 900,
+          minWidth: 300,
+          zIndex: 0,
+        }}
+      />
       <PageHeader 
         title="Classes" 
         description="Manage classes and their assignments" 
@@ -52,32 +65,40 @@ export default function ClassesPage() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredClasses.map((cls) => (
-          <Card key={cls.id}>
+          <Card 
+            key={cls.id}
+            className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black"
+          >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-lg">{cls.name}</CardTitle>
-                <Badge variant="outline">{cls.ageGroup}</Badge>
+                <Badge
+                  variant="outline"
+                  className="text-white group-hover:text-black transition-colors duration-200"
+                >
+                  {cls.ageGroup}
+                </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div>
                   <p className="text-sm font-medium">Teachers</p>
-                  <p className="text-sm text-muted-foreground">{getTeacherNames(cls.teacherIds)}</p>
+                  <p className="text-sm text-white hover:text-black">{getTeacherNames(cls.teacherIds)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Students</p>
-                  <p className="text-sm text-muted-foreground">{cls.studentIds.length} enrolled</p>
+                  <p className="text-sm text-white hover:text-black">{cls.studentIds.length} enrolled</p>
                 </div>
                 {cls.description && (
                   <div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{cls.description}</p>
+                    <p className="text-sm text-white hover:text-black line-clamp-2">{cls.description}</p>
                   </div>
                 )}
                 <div className="pt-2 flex justify-end">
                   <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/classes/${cls.id}`}>
-                      <Users className="mr-2 h-4 w-4" />
+                    <Link to={`/admin/classes/${cls.id}`} className="flex items-center text-black">
+                      <Users className="mr-2 h-4 w-4 text-black" />
                       Manage Class
                     </Link>
                   </Button>

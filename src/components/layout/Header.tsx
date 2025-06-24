@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { Bell, Menu, X } from 'lucide-react';
+import logo from '../../assets/logo.png';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -47,7 +47,11 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm">KC</div>
+              <img
+              src={logo}
+              alt="Kindred Kids Compass Logo"
+              className="w-8 h-8 rounded-full mr-2"
+            />
             <span className="text-xl font-heading font-bold">Kindred Kids</span>
           </Link>
         </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { mockUsers } from "@/lib/mock-data";
 import { User, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +22,19 @@ export default function TeachersPage() {
 
   return (
     <Layout>
+       {/* Background logo image */}
+            <img
+              src={logo}
+              alt="Kindred Kids Compass Logo"
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
+              style={{
+                width: "20vw",
+                maxWidth: 900,
+                minWidth: 300,
+                zIndex: 0,
+              }}
+            />
       <PageHeader 
         title="Teachers" 
         description="Manage teachers and their class assignments"
@@ -46,7 +59,10 @@ export default function TeachersPage() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {teachers.map((teacher) => (
-          <Card key={teacher.id} className="p-4">
+          <Card
+            key={teacher.id}
+            className="p-4 bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black"
+          >
             <div className="flex items-center space-x-4">
               <Avatar className="h-12 w-12">
                 <AvatarImage src={teacher.avatar} alt={teacher.name} />
@@ -54,7 +70,7 @@ export default function TeachersPage() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{teacher.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{teacher.email}</p>
+                <p className="text-xs text-white hover:text-black truncate">{teacher.email}</p>
               </div>
               <Button variant="ghost" size="icon" asChild>
                 <Link to={`/admin/teachers/${teacher.id}`}>

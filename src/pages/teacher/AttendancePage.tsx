@@ -239,8 +239,10 @@ export default function AttendancePage() {
                   <TableCell>{record.rate.toFixed(1)}%</TableCell>
                   <TableCell>{record.recordedBy}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">
-                      View Details
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/teacher/attendance/details/${index}`}>
+                        View Details
+                      </Link>
                     </Button>
                   </TableCell>
                 </TableRow>

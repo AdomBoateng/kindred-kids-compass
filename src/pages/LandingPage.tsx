@@ -1,33 +1,77 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
-import logo from "@/assets/logo.png";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { useEffect } from "react";
+import Autoplay from "embla-carousel-autoplay";
 
 export default function LandingPage() {
   return (
     <Layout>
-      {/* Hero Section with logo background */}
-      <section
-        className="relative py-20 md:py-32 overflow-hidden"
-        style={{
-          position: "relative",
-        }}
-      >
-        {/* Logo background image */}
-        <img
-          src={logo}
-          alt="Kindred Kids Compass Logo"
-          aria-hidden="true"
-          className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10"
-          style={{
-            width: "70vw",
-            maxWidth: 900,
-            minWidth: 300,
-            zIndex: 0,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-ministry-accent/30 to-background -z-10"></div>
-        <div className="container px-4 mx-auto relative z-10">
+      {/* Hero Section with carousel background */}
+      <section className="relative py-20 md:py-32 overflow-hidden">
+        {/* Background carousel */}
+        <div className="absolute inset-0 z-0">
+          <Carousel
+            plugins={[
+              Autoplay({
+                delay: 4000,
+              }),
+            ]}
+            className="w-full h-full"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent className="h-full">
+              <CarouselItem className="h-full">
+                <div 
+                  className="w-full h-full bg-cover bg-center opacity-20"
+                  style={{
+                    backgroundImage: `url('https://images.unsplash.com/photo-1587691592099-24045742c181?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+                  }}
+                />
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div 
+                  className="w-full h-full bg-cover bg-center opacity-20"
+                  style={{
+                    backgroundImage: `url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+                  }}
+                />
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div 
+                  className="w-full h-full bg-cover bg-center opacity-20"
+                  style={{
+                    backgroundImage: `url('https://images.unsplash.com/photo-1576201836106-db1758fd1c97?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+                  }}
+                />
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div 
+                  className="w-full h-full bg-cover bg-center opacity-20"
+                  style={{
+                    backgroundImage: `url('https://images.unsplash.com/photo-1541450761256-0d13709fa543?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+                  }}
+                />
+              </CarouselItem>
+              <CarouselItem className="h-full">
+                <div 
+                  className="w-full h-full bg-cover bg-center opacity-20"
+                  style={{
+                    backgroundImage: `url('https://images.unsplash.com/photo-1560582861-45078880e48e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+                  }}
+                />
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-br from-ministry-accent/30 to-background z-10"></div>
+        <div className="container px-4 mx-auto relative z-20">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6">
               Kindred Kids Compass

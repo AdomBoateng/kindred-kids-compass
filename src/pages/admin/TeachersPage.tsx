@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { mockUsers } from "@/lib/mock-data";
-import { User, UserPlus } from "lucide-react";
+import { Settings, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
@@ -74,8 +75,8 @@ export default function TeachersPage() {
               </div>
               <Button variant="ghost" size="icon" asChild>
                 <Link to={`/admin/teachers/${teacher.id}`}>
-                  <User className="h-4 w-4" />
-                  <span className="sr-only">View Details</span>
+                  <Settings className="h-4 w-4" />
+                  <span className="sr-only">Manage Teacher</span>
                 </Link>
               </Button>
             </div>

@@ -20,10 +20,10 @@ export default function StudentsPage() {
       student.lastName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Get class name for each student
+  // Get class info for each student
   const getClassInfo = (classId: string) => {
     const classData = mockClasses.find(cls => cls.id === classId);
-    return classData ? classData.name : "No Class Assigned";
+    return classData ? { id: classData.id, name: classData.name } : { id: "", name: "No Class Assigned" };
   };
 
   return (

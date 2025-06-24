@@ -16,6 +16,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import TeachersPage from "./pages/admin/TeachersPage";
+import ManageTeachersPage from "./pages/admin/ManageTeachersPage";
 import ClassesPage from "./pages/admin/ClassesPage";
 import CreateClassPage from "./pages/admin/CreateClassPage";
 import ManageClassPage from "./pages/admin/ManageClassPage";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/teachers" element={<TeachersPage />} />
             <Route path="/admin/teachers/new" element={<NewTeacherPage />} />
+            <Route path="/admin/teachers/:id" element={<ManageTeachersPage />} />
             <Route path="/admin/classes" element={<ClassesPage />} />
             <Route path="/admin/classes/new" element={<CreateClassPage />} />
             <Route path="/admin/classes/:id" element={<ManageClassPage />} />

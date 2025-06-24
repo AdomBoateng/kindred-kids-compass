@@ -72,7 +72,7 @@ const chartData = [
 ];
 
 export default function AttendanceReportsPage() {
-  const [selectedClass, setSelectedClass] = useState<string>("");
+  const [selectedClass, setSelectedClass] = useState<string>("all");
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
@@ -157,7 +157,7 @@ export default function AttendanceReportsPage() {
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Classes</SelectItem>
+                      <SelectItem value="all">All Classes</SelectItem>
                       {mockClasses.map(cls => (
                         <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
                       ))}
@@ -183,7 +183,7 @@ export default function AttendanceReportsPage() {
                       const className = mockClasses.find(c => c.id === record.classId)?.name || "Unknown";
                       
                       // Skip if filtering by class and doesn't match
-                      if (selectedClass && record.classId !== selectedClass) {
+                      if (selectedClass !== "all" && record.classId !== selectedClass) {
                         return null;
                       }
                       

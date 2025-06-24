@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/cards/StatCard";
@@ -62,7 +61,10 @@ export default function TeacherDashboardPage() {
         title="Teacher Dashboard" 
         description={`Welcome back, ${user?.name || 'Teacher'}`}
       >
-        <Button asChild>
+        <Button
+          asChild
+          className="hover:bg-[#FFC107] transition-colors"
+        >
           <Link to="/teacher/attendance/new">Record Attendance</Link>
         </Button>
       </PageHeader>
@@ -143,24 +145,24 @@ export default function TeacherDashboardPage() {
             limit={3}
           />
           
-          <div className="dashboard-card">
+          <div className="dashboard-card bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <Link to="/teacher/attendance/new" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Take Attendance</div>
-                <div className="text-sm text-muted-foreground">Record today's attendance</div>
+              <Link to="/teacher/attendance/new" className="block p-3 hover:bg-muted rounded-lg transition-colors group">
+                <div className="font-bold">Take Attendance</div>
+                <div className="text-sm text-white group-hover:text-black transition-colors">Record today's attendance</div>
               </Link>
-              <Link to="/teacher/performance/new" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Record Test Scores</div>
-                <div className="text-sm text-muted-foreground">Enter Bible quiz or memory verse scores</div>
+              <Link to="/teacher/performance/new" className="block p-3 hover:bg-muted rounded-lg transition-colors group">
+                <div className="font-bold">Record Test Scores</div>
+                <div className="text-sm text-white group-hover:text-black transition-colors">Enter Bible quiz or memory verse scores</div>
               </Link>
-              <Link to="/teacher/students" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Student Profiles</div>
-                <div className="text-sm text-muted-foreground">View student details and history</div>
+              <Link to="/teacher/students" className="block p-3 hover:bg-muted rounded-lg transition-colors group">
+                <div className="font-bold">Student Profiles</div>
+                <div className="text-sm text-white group-hover:text-black transition-colors">View student details and history</div>
               </Link>
-              <Link to="/teacher/reports" className="block p-3 hover:bg-muted rounded-lg transition-colors">
-                <div className="font-medium">Generate Reports</div>
-                <div className="text-sm text-muted-foreground">Create attendance and performance reports</div>
+              <Link to="/teacher/reports" className="block p-3 hover:bg-muted rounded-lg transition-colors group">
+                <div className="font-bold">Generate Reports</div>
+                <div className="text-sm text-white group-hover:text-black transition-colors">Create attendance and performance reports</div>
               </Link>
             </div>
           </div>

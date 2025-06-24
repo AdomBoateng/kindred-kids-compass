@@ -1,4 +1,3 @@
-
 import { Student } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,10 +28,10 @@ export function BirthdayList({
   }).slice(0, limit);
 
   return (
-    <Card>
+    <Card className="group bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-white group-hover:text-black transition-colors">{title}</CardTitle>
+        <CardDescription className="text-white group-hover:text-black transition-colors">{description}</CardDescription>
       </CardHeader>
       <CardContent>
         {sortedStudents.length > 0 ? (
@@ -50,20 +49,20 @@ export function BirthdayList({
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{student.firstName} {student.lastName}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-white group-hover:text-black transition-colors">{student.firstName} {student.lastName}</p>
+                    <p className="text-sm text-white group-hover:text-black transition-colors">
                       {formatDate(getUpcomingBirthday(student.dateOfBirth))}
                     </p>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to={`/student/${student.id}`}>View</Link>
+                  <Link to={`/student/${student.id}`} className="text-white group-hover:text-black transition-colors">View</Link>
                 </Button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-white group-hover:text-black transition-colors">
             {emptyMessage}
           </div>
         )}

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -50,7 +49,10 @@ export default function TeachersPage() {
             className="w-full"
           />
         </div>
-        <Button asChild>
+        <Button
+          asChild
+          className="hover:bg-[#FFC107] hover:text-black transition-colors"
+        >
           <Link to="/admin/teachers/new">
             <UserPlus className="mr-2 h-4 w-4" />
             Add New Teacher

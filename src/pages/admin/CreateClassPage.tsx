@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -169,7 +168,7 @@ export default function CreateClassPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="hover:bg-[#FFC107] hover:text-black transition-colors">
                   <Save className="mr-2 h-4 w-4" />
                   Create Class
                 </Button>

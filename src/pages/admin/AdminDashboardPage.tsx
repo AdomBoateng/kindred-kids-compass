@@ -123,45 +123,45 @@ export default function AdminDashboardPage() {
               emptyMessage="No upcoming birthdays in the next 30 days."
             />
             
-            <div className="bg-card border rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+            <div className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-black border rounded-lg p-6">
+              <h3 className="text-white font-semibold mb-4">Quick Actions</h3>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/admin/students/new" className="flex items-center">
-                    <UserPlus className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full justify-start group" asChild>
+                  <Link to="/admin/students/new" className="flex items-center text-black group-hover:text-black transition-colors">
+                    <UserPlus className="mr-2 h-4 w-4 text-black group-hover:text-black transition-colors" />
                     <div>
-                      <div className="font-medium">Add New Student</div>
-                      <div className="text-xs text-muted-foreground">Register a new child to the system</div>
+                      <div className="font-medium text-black group-hover:text-black transition-colors">Add New Student</div>
+                      <div className="text-xs text-black group-hover:text-black transition-colors">Register a new child to the system</div>
                     </div>
                   </Link>
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/admin/teachers/new" className="flex items-center">
-                    <UserPlus className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full justify-start group" asChild>
+                  <Link to="/admin/teachers/new" className="flex items-center text-black group-hover:text-black transition-colors">
+                    <UserPlus className="mr-2 h-4 w-4 text-black group-hover:text-black transition-colors" />
                     <div>
-                      <div className="font-medium">Add New Teacher</div>
-                      <div className="text-xs text-muted-foreground">Register a teacher account</div>
+                      <div className="font-medium text-black group-hover:text-black transition-colors">Add New Teacher</div>
+                      <div className="text-xs text-black group-hover:text-black transition-colors">Register a teacher account</div>
                     </div>
                   </Link>
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/admin/attendance/reports" className="flex items-center">
-                    <FileChartLine className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full justify-start group" asChild>
+                  <Link to="/admin/attendance/reports" className="flex items-center text-black group-hover:text-black transition-colors">
+                    <FileChartLine className="mr-2 h-4 w-4 text-black group-hover:text-black transition-colors" />
                     <div>
-                      <div className="font-medium">View Attendance Reports</div>
-                      <div className="text-xs text-muted-foreground">Check attendance history by class</div>
+                      <div className="font-medium text-black group-hover:text-black transition-colors">View Attendance Reports</div>
+                      <div className="text-xs text-black group-hover:text-black transition-colors">Check attendance history by class</div>
                     </div>
                   </Link>
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/admin/classes/assign" className="flex items-center">
-                    <UserCheck className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full justify-start group" asChild>
+                  <Link to="/admin/classes/assign" className="flex items-center text-black group-hover:text-black transition-colors">
+                    <UserCheck className="mr-2 h-4 w-4 text-black group-hover:text-black transition-colors" />
                     <div>
-                      <div className="font-medium">Assign Teachers to Classes</div>
-                      <div className="text-xs text-muted-foreground">Manage teacher-class assignments</div>
+                      <div className="font-medium text-black group-hover:text-black transition-colors">Assign Teachers to Classes</div>
+                      <div className="text-xs text-black group-hover:text-black transition-colors">Manage teacher-class assignments</div>
                     </div>
                   </Link>
                 </Button>

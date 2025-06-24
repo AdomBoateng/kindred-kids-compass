@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
@@ -36,45 +35,38 @@ interface StatCardProps {
 export function StatCard({
   title,
   value,
-  icon,
   trend,
   trendLabel,
-  variant = "default",
+  variant,
   footer,
-  className,
 }: StatCardProps) {
   return (
-    <div className={cn(statCardVariants({ variant }), className)}>
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="stat-label">{title}</h3>
-        {icon && <div className="text-muted-foreground">{icon}</div>}
+    <div className={cn(statCardVariants({ variant }), "p-6 rounded-xl border")}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-medium">{title}</span>
+        {trend !== undefined && (
+          <span
+            className={cn(
+              "text-xs font-semibold",
+              trend > 0
+                ? "text-green-600"
+                : trend < 0
+                ? "text-red-600"
+                : "text-muted-foreground"
+            )}
+          >
+            {trend > 0 ? "+" : ""}
+            {trend}%
+          </span>
+        )}
       </div>
-      <div className="stat-value mb-2">{value}</div>
-      
-      {(trend !== undefined || trendLabel) && (
-        <div className="flex items-center mt-1">
-          {trend !== undefined && (
-            <span className={
-              trend > 0 
-                ? "text-green-600 text-sm font-medium" 
-                : trend < 0 
-                  ? "text-red-600 text-sm font-medium"
-                  : "text-muted-foreground text-sm"
-            }>
-              {trend > 0 ? "+" : ""}{trend}%
-            </span>
-          )}
-          {trendLabel && (
-            <span className="text-muted-foreground text-sm ml-1">{trendLabel}</span>
-          )}
-        </div>
+      <div className="text-3xl font-bold mb-1" style={{ color: "#040273" }}>
+        {value}
+      </div>
+      {trendLabel && (
+        <div className="text-xs text-muted-foreground mb-2">{trendLabel}</div>
       )}
-      
-      {footer && (
-        <div className="mt-4 pt-3 border-t text-sm text-muted-foreground">
-          {footer}
-        </div>
-      )}
+      {footer && <div className="mt-4">{footer}</div>}
     </div>
   );
 }

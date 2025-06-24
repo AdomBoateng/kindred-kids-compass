@@ -1,4 +1,3 @@
-
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -37,37 +36,38 @@ export function AttendanceChart({ data, title, description, showLegend = true, h
                 bottom: 0,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#040273" />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 12 }} 
+                tick={{ fontSize: 12, fill: "#040273" }} 
                 tickLine={false}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
+                axisLine={{ stroke: '#040273' }}
               />
               <YAxis 
                 tickFormatter={(value) => `${value}%`}
                 domain={[0, 100]}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: "#040273" }}
                 tickLine={false}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
+                axisLine={{ stroke: '#040273' }}
               />
               <Tooltip 
                 formatter={(value: number) => [`${value}%`, 'Attendance Rate']}
                 labelFormatter={(label) => `Date: ${label}`}
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
+                  backgroundColor: '#FFC107',
+                  border: '1px solid #040273',
                   borderRadius: '0.375rem',
                   padding: '0.5rem',
                   fontSize: '0.875rem',
+                  color: '#040273',
                 }}
               />
               <Area 
                 type="monotone" 
                 dataKey="rate" 
-                stroke="hsl(var(--primary))" 
-                fill="hsl(var(--primary))"
-                fillOpacity={0.2}
+                stroke="#040273" 
+                fill="#FFC107"
+                fillOpacity={0.3}
               />
             </AreaChart>
           </ResponsiveContainer>

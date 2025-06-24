@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,8 +31,10 @@ import TeacherStudentsPage from "./pages/teacher/StudentsPage";
 import StudentProfilePage from "./pages/teacher/StudentProfilePage";
 import AttendancePage from "./pages/teacher/AttendancePage";
 import RecordAttendancePage from "./pages/teacher/RecordAttendancePage";
+import AttendanceDetailsPage from "./pages/teacher/AttendanceDetailsPage";
 import PerformancePage from "./pages/teacher/PerformancePage";
 import RecordPerformancePage from "./pages/teacher/RecordPerformancePage";
+import PerformanceDetailsPage from "./pages/teacher/PerformanceDetailsPage";
 import ReportsPage from "./pages/teacher/ReportsPage";
 import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
 import TeacherSettingsPage from "./pages/teacher/TeacherSettingsPage";
@@ -74,8 +75,10 @@ const App = () => (
             <Route path="/student/:id" element={<StudentProfilePage />} />
             <Route path="/teacher/attendance" element={<AttendancePage />} />
             <Route path="/teacher/attendance/new" element={<RecordAttendancePage />} />
+            <Route path="/teacher/attendance/details/:date?" element={<AttendanceDetailsPage />} />
             <Route path="/teacher/performance" element={<PerformancePage />} />
             <Route path="/teacher/performance/new" element={<RecordPerformancePage />} />
+            <Route path="/teacher/performance/details/:id?" element={<PerformanceDetailsPage />} />
             <Route path="/teacher/reports" element={<ReportsPage />} />
             <Route path="/teacher/profile" element={<TeacherProfilePage />} />
             <Route path="/teacher/settings" element={<TeacherSettingsPage />} />

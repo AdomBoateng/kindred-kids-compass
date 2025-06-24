@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -28,7 +29,7 @@ export default function ClassesPage() {
 
   return (
     <Layout>
-       {/* Background logo image */}
+      {/* Background logo image */}
       <img
         src={logo}
         alt="Kindred Kids Compass Logo"
@@ -67,14 +68,14 @@ export default function ClassesPage() {
         {filteredClasses.map((cls) => (
           <Card 
             key={cls.id}
-            className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black"
+            className="group bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black"
           >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-lg">{cls.name}</CardTitle>
                 <Badge
                   variant="outline"
-                  className="text-white group-hover:text-black transition-colors duration-200"
+                  className="text-white border-white group-hover:text-black group-hover:border-black"
                 >
                   {cls.ageGroup}
                 </Badge>
@@ -84,21 +85,27 @@ export default function ClassesPage() {
               <div className="space-y-2">
                 <div>
                   <p className="text-sm font-medium">Teachers</p>
-                  <p className="text-sm text-white hover:text-black">{getTeacherNames(cls.teacherIds)}</p>
+                  <p className="text-sm text-white group-hover:text-black">
+                    {getTeacherNames(cls.teacherIds) || "No teachers assigned"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Students</p>
-                  <p className="text-sm text-white hover:text-black">{cls.studentIds.length} enrolled</p>
+                  <p className="text-sm text-white group-hover:text-black">
+                    {cls.studentIds.length} enrolled
+                  </p>
                 </div>
                 {cls.description && (
                   <div>
-                    <p className="text-sm text-white hover:text-black line-clamp-2">{cls.description}</p>
+                    <p className="text-sm text-white group-hover:text-black line-clamp-2">
+                      {cls.description}
+                    </p>
                   </div>
                 )}
                 <div className="pt-2 flex justify-end">
                   <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/classes/${cls.id}`} className="flex items-center text-black">
-                      <Users className="mr-2 h-4 w-4 text-black" />
+                    <Link to={`/admin/classes/${cls.id}`} className="flex items-center text-black hover:text-black">
+                      <Users className="mr-2 h-4 w-4" />
                       Manage Class
                     </Link>
                   </Button>

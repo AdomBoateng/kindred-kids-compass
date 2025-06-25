@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -12,6 +11,7 @@ import { calculateAge } from "@/lib/date-utils";
 import { ArrowLeft, Calendar, Activity, ClipboardList, FileEdit } from "lucide-react";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
 import { StudentFormSheet } from "@/components/forms/StudentFormSheet";
+import { useAuth } from "@/context/AuthContext";
 import { 
   Table,
   TableHeader,
@@ -25,6 +25,7 @@ export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const { user } = useAuth();
   
   const student = mockStudents.find(s => s.id === id);
   
@@ -35,7 +36,9 @@ export default function StudentProfilePage() {
           <h2 className="text-2xl font-bold mb-2">Student Not Found</h2>
           <p className="text-muted-foreground mb-6">The student you are looking for doesn't exist.</p>
           <Button asChild>
-            <Link to="/teacher/students">Back to Students</Link>
+            <Link to={user?.role === 'admin' ? "/admin/students" : "/teacher/students"}>
+              Back to Students
+            </Link>
           </Button>
         </div>
       </Layout>
@@ -66,7 +69,10 @@ export default function StudentProfilePage() {
   return (
     <Layout>
       <div className="mb-6">
-        <Link to="/teacher/students" className="text-muted-foreground hover:text-foreground flex items-center text-sm">
+        <Link 
+          to={user?.role === 'admin' ? "/admin/students" : "/teacher/students"} 
+          className="text-muted-foreground hover:text-foreground flex items-center text-sm"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Students List
         </Link>
@@ -100,20 +106,23 @@ export default function StudentProfilePage() {
           </div>
           <p className="text-muted-foreground mb-4">{studentClass?.name || "Unassigned"} • {age} years old</p>
           
-          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-            <Button variant="outline" size="sm">
-              <Calendar className="h-4 w-4 mr-2" />
-              Record Attendance
-            </Button>
-            <Button variant="outline" size="sm">
-              <Activity className="h-4 w-4 mr-2" />
-              Add Performance
-            </Button>
-            <Button variant="outline" size="sm">
-              <ClipboardList className="h-4 w-4 mr-2" />
-              Add Note
-            </Button>
-          </div>
+          {/* Only show teacher-specific actions if user is a teacher */}
+          {user?.role === 'teacher' && (
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              <Button variant="outline" size="sm">
+                <Calendar className="h-4 w-4 mr-2" />
+                Record Attendance
+              </Button>
+              <Button variant="outline" size="sm">
+                <Activity className="h-4 w-4 mr-2" />
+                Add Performance
+              </Button>
+              <Button variant="outline" size="sm">
+                <ClipboardList className="h-4 w-4 mr-2" />
+                Add Note
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       
@@ -143,9 +152,13 @@ export default function StudentProfilePage() {
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="attendance">Attendance</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+          {user?.role === 'teacher' && (
+            <>
+              <TabsTrigger value="attendance">Attendance</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="notes">Notes</TabsTrigger>
+            </>
+          )}
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
@@ -190,170 +203,178 @@ export default function StudentProfilePage() {
             </CardContent>
           </Card>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium">Recent Attendance</h3>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to={`/teacher/attendance?student=${id}`}>View All</Link>
-                  </Button>
-                </div>
-                
-                <AttendanceChart
-                  data={attendanceData}
-                  height={200}
-                />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium">Recent Performance</h3>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to={`/teacher/performance?student=${id}`}>View All</Link>
-                  </Button>
-                </div>
-                
-                {recentPerformance.map((item, index) => (
-                  <div key={index} className="py-2 border-b last:border-b-0">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{item.type}</span>
-                      <span className="font-medium">{item.score}%</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">{item.date}</div>
+          {/* Only show attendance and performance overview for teachers */}
+          {user?.role === 'teacher' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Recent Attendance</h3>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/teacher/attendance?student=${id}`}>View All</Link>
+                    </Button>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="attendance">
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-medium mb-4">Attendance History</h3>
-              <AttendanceChart
-                data={attendanceData}
-                title="6-Week Attendance"
-                showLegend={false}
-              />
+                  
+                  <AttendanceChart
+                    data={attendanceData}
+                    height={200}
+                  />
+                </CardContent>
+              </Card>
               
-              <div className="mt-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Recorded By</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>May 7, 2023</TableCell>
-                      <TableCell>
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">Present</span>
-                      </TableCell>
-                      <TableCell>Sarah Johnson</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>April 30, 2023</TableCell>
-                      <TableCell>
-                        <span className={student.id === "2" ? 
-                          "bg-red-100 text-red-800 px-2 py-1 rounded-md text-xs" : 
-                          "bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs"}>
-                          {student.id === "2" ? "Absent" : "Present"}
-                        </span>
-                      </TableCell>
-                      <TableCell>Sarah Johnson</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>April 23, 2023</TableCell>
-                      <TableCell>
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">Present</span>
-                      </TableCell>
-                      <TableCell>Sarah Johnson</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="performance">
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-medium mb-4">Performance History</h3>
-              
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Score</TableHead>
-                    <TableHead>Notes</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Recent Performance</h3>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/teacher/performance?student=${id}`}>View All</Link>
+                    </Button>
+                  </div>
+                  
                   {recentPerformance.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.date}</TableCell>
-                      <TableCell>{item.type}</TableCell>
-                      <TableCell>{item.score}%</TableCell>
-                      <TableCell>{index === 0 ? "Excellent understanding of the material" : "Good participation"}</TableCell>
-                    </TableRow>
+                    <div key={index} className="py-2 border-b last:border-b-0">
+                      <div className="flex justify-between">
+                        <span className="font-medium">{item.type}</span>
+                        <span className="font-medium">{item.score}%</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">{item.date}</div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
-              
-              <div className="flex justify-end mt-6">
-                <Button>
-                  <Activity className="h-4 w-4 mr-2" />
-                  Add Performance Record
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </TabsContent>
         
-        <TabsContent value="notes">
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-medium mb-4">Teacher Notes</h3>
-              
-              <div className="bg-muted/50 p-4 rounded-lg mb-4">
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">Sarah Johnson</span>
-                  <span className="text-sm text-muted-foreground">May 1, 2023</span>
-                </div>
-                <p>
-                  {student.firstName} showed great enthusiasm during our Bible story time. 
-                  Really engaged with questions and remembered details from previous lessons.
-                </p>
-              </div>
-              
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">Sarah Johnson</span>
-                  <span className="text-sm text-muted-foreground">April 15, 2023</span>
-                </div>
-                <p>
-                  Parent mentioned that {student.firstName} has been practicing memory verses at home.
-                  Very proud of their progress!
-                </p>
-              </div>
-              
-              <div className="flex justify-end mt-6">
-                <Button>
-                  <ClipboardList className="h-4 w-4 mr-2" />
-                  Add Note
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Only render teacher-specific tabs if user is a teacher */}
+        {user?.role === 'teacher' && (
+          <>
+            <TabsContent value="attendance">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-medium mb-4">Attendance History</h3>
+                  <AttendanceChart
+                    data={attendanceData}
+                    title="6-Week Attendance"
+                    showLegend={false}
+                  />
+                  
+                  <div className="mt-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Recorded By</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>May 7, 2023</TableCell>
+                          <TableCell>
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">Present</span>
+                          </TableCell>
+                          <TableCell>Sarah Johnson</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>April 30, 2023</TableCell>
+                          <TableCell>
+                            <span className={student.id === "2" ? 
+                              "bg-red-100 text-red-800 px-2 py-1 rounded-md text-xs" : 
+                              "bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs"}>
+                              {student.id === "2" ? "Absent" : "Present"}
+                            </span>
+                          </TableCell>
+                          <TableCell>Sarah Johnson</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>April 23, 2023</TableCell>
+                          <TableCell>
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">Present</span>
+                          </TableCell>
+                          <TableCell>Sarah Johnson</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="performance">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-medium mb-4">Performance History</h3>
+                  
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Score</TableHead>
+                        <TableHead>Notes</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentPerformance.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{item.date}</TableCell>
+                          <TableCell>{item.type}</TableCell>
+                          <TableCell>{item.score}%</TableCell>
+                          <TableCell>{index === 0 ? "Excellent understanding of the material" : "Good participation"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  
+                  <div className="flex justify-end mt-6">
+                    <Button>
+                      <Activity className="h-4 w-4 mr-2" />
+                      Add Performance Record
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="notes">
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-medium mb-4">Teacher Notes</h3>
+                  
+                  <div className="bg-muted/50 p-4 rounded-lg mb-4">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Sarah Johnson</span>
+                      <span className="text-sm text-muted-foreground">May 1, 2023</span>
+                    </div>
+                    <p>
+                      {student.firstName} showed great enthusiasm during our Bible story time. 
+                      Really engaged with questions and remembered details from previous lessons.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Sarah Johnson</span>
+                      <span className="text-sm text-muted-foreground">April 15, 2023</span>
+                    </div>
+                    <p>
+                      Parent mentioned that {student.firstName} has been practicing memory verses at home.
+                      Very proud of their progress!
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-end mt-6">
+                    <Button>
+                      <ClipboardList className="h-4 w-4 mr-2" />
+                      Add Note
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </>
+        )}
       </Tabs>
       
       <StudentFormSheet 

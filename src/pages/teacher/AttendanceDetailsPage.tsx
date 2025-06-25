@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -30,11 +29,11 @@ const mockDetailedAttendance = [
   {
     date: new Date(),
     students: [
-      { id: "1", name: "Emma Johnson", status: "present", arrivalTime: "9:15 AM" },
+      { id: "1", name: "Emma Johnson", status: "present" },
       { id: "2", name: "Liam Brown", status: "absent", reason: "Sick" },
-      { id: "3", name: "Olivia Davis", status: "present", arrivalTime: "9:05 AM" },
-      { id: "4", name: "Noah Wilson", status: "present", arrivalTime: "9:20 AM" },
-      { id: "5", name: "Ava Miller", status: "late", arrivalTime: "9:45 AM" },
+      { id: "3", name: "Olivia Davis", status: "present" },
+      { id: "4", name: "Noah Wilson", status: "present" },
+      { id: "5", name: "Ava Miller", status: "late" },
     ],
     totalPresent: 3,
     totalLate: 1,
@@ -45,11 +44,11 @@ const mockDetailedAttendance = [
   {
     date: subDays(new Date(), 7),
     students: [
-      { id: "1", name: "Emma Johnson", status: "present", arrivalTime: "9:10 AM" },
-      { id: "2", name: "Liam Brown", status: "present", arrivalTime: "9:15 AM" },
-      { id: "3", name: "Olivia Davis", status: "present", arrivalTime: "9:05 AM" },
-      { id: "4", name: "Noah Wilson", status: "present", arrivalTime: "9:25 AM" },
-      { id: "5", name: "Ava Miller", status: "present", arrivalTime: "9:30 AM" },
+      { id: "1", name: "Emma Johnson", status: "present" },
+      { id: "2", name: "Liam Brown", status: "present" },
+      { id: "3", name: "Olivia Davis", status: "present" },
+      { id: "4", name: "Noah Wilson", status: "present" },
+      { id: "5", name: "Ava Miller", status: "present" },
     ],
     totalPresent: 5,
     totalLate: 0,
@@ -60,11 +59,11 @@ const mockDetailedAttendance = [
   {
     date: subDays(new Date(), 14),
     students: [
-      { id: "1", name: "Emma Johnson", status: "present", arrivalTime: "9:12 AM" },
-      { id: "2", name: "Liam Brown", status: "present", arrivalTime: "9:18 AM" },
+      { id: "1", name: "Emma Johnson", status: "present" },
+      { id: "2", name: "Liam Brown", status: "present" },
       { id: "3", name: "Olivia Davis", status: "absent", reason: "Family trip" },
-      { id: "4", name: "Noah Wilson", status: "present", arrivalTime: "9:22 AM" },
-      { id: "5", name: "Ava Miller", status: "late", arrivalTime: "9:50 AM" },
+      { id: "4", name: "Noah Wilson", status: "present" },
+      { id: "5", name: "Ava Miller", status: "late" },
     ],
     totalPresent: 3,
     totalLate: 1,
@@ -184,7 +183,6 @@ export default function AttendanceDetailsPage() {
                   <TableRow>
                     <TableHead>Student</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Arrival Time</TableHead>
                     <TableHead>Notes</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -212,9 +210,6 @@ export default function AttendanceDetailsPage() {
                             {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
                           </span>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        {student.arrivalTime || "-"}
                       </TableCell>
                       <TableCell>
                         {student.reason || "-"}

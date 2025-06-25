@@ -291,7 +291,7 @@ export default function PerformanceDetailsPage() {
               </div>
               
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Needs Work (<80%)</span>
+                <span className="text-muted-foreground">Needs Work (&lt;80%)</span>
                 <span className="font-medium">
                   {performanceRecord.students.filter(s => s.score < 80).length}
                 </span>

@@ -109,17 +109,23 @@ export default function StudentProfilePage() {
           {/* Only show teacher-specific actions if user is a teacher */}
           {user?.role === 'teacher' && (
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-              <Button variant="outline" size="sm">
-                <Calendar className="h-4 w-4 mr-2" />
-                Record Attendance
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/student/${id}/record-attendance`}>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Record Attendance
+                </Link>
               </Button>
-              <Button variant="outline" size="sm">
-                <Activity className="h-4 w-4 mr-2" />
-                Add Performance
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/student/${id}/add-performance`}>
+                  <Activity className="h-4 w-4 mr-2" />
+                  Add Performance
+                </Link>
               </Button>
-              <Button variant="outline" size="sm">
-                <ClipboardList className="h-4 w-4 mr-2" />
-                Add Note
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/student/${id}/add-note`}>
+                  <ClipboardList className="h-4 w-4 mr-2" />
+                  Add Note
+                </Link>
               </Button>
             </div>
           )}

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,6 +39,9 @@ import PerformanceDetailsPage from "./pages/teacher/PerformanceDetailsPage";
 import ReportsPage from "./pages/teacher/ReportsPage";
 import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
 import TeacherSettingsPage from "./pages/teacher/TeacherSettingsPage";
+import RecordStudentAttendancePage from "./pages/teacher/RecordStudentAttendancePage";
+import AddStudentPerformancePage from "./pages/teacher/AddStudentPerformancePage";
+import AddStudentNotePage from "./pages/teacher/AddStudentNotePage";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +87,11 @@ const App = () => (
             <Route path="/teacher/profile" element={<TeacherProfilePage />} />
             <Route path="/teacher/settings" element={<TeacherSettingsPage />} />
             <Route path="/teacher" element={<Navigate to="/teacher/dashboard" replace />} />
+            
+            {/* Individual student action routes */}
+            <Route path="/student/:id/record-attendance" element={<RecordStudentAttendancePage />} />
+            <Route path="/student/:id/add-performance" element={<AddStudentPerformancePage />} />
+            <Route path="/student/:id/add-note" element={<AddStudentNotePage />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -66,14 +65,14 @@ export default function RecordAttendancePage() {
       />
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <Card>
+        <Card className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black">
           <CardContent className="pt-6">
             <div className="text-xl font-medium mb-2">Class</div>
             <div>{teacherClass?.name || "Preschool Class"}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black">
           <CardContent className="pt-6">
             <div className="text-xl font-medium mb-2">Date</div>
             <div className="flex items-center">
@@ -82,12 +81,16 @@ export default function RecordAttendancePage() {
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "justify-start text-left font-normal",
+                      "justify-start text-left font-normal text-black",
                       !date && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    <CalendarIcon className="mr-2 h-4 w-4 text-black" />
+                    {date ? (
+                      <span className="text-black">{format(date, "PPP")}</span>
+                    ) : (
+                      <span className="text-black">Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -104,14 +107,14 @@ export default function RecordAttendancePage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black">
           <CardContent className="pt-6">
             <div className="text-xl font-medium mb-2">Students</div>
             <div>{classStudents.length} total</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black">
           <CardContent className="pt-6">
             <div className="text-xl font-medium mb-2">Present</div>
             <div>{presentCount} ({attendanceRate}%)</div>
@@ -151,8 +154,17 @@ export default function RecordAttendancePage() {
             </TableBody>
           </Table>
           
-          <div className="mt-6 flex justify-end">
-            <Button onClick={handleSubmit}>Save Attendance</Button>
+          <div className="mt-6 flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.history.back()}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>
+              Save Attendance
+            </Button>
           </div>
         </CardContent>
       </Card>

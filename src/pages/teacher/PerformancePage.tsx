@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -110,7 +109,7 @@ export default function PerformancePage() {
         title="Performance Tracking" 
         description="Track and manage class performance scores"
       >
-        <Button asChild>
+        <Button asChild className="hover:bg-[#FFC107] hover:text-black transition-colors">
           <Link to="/teacher/performance/new">
             <Activity className="h-4 w-4 mr-2" />
             Record Scores

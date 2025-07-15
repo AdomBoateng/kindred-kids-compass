@@ -6,12 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { mockUsers } from "@/lib/mock-data";
-import { Settings, UserPlus } from "lucide-react";
+import { Settings, UserPlus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
   
   // Filter teachers from mockUsers
   const teachers = mockUsers.filter(
@@ -19,6 +32,14 @@ export default function TeachersPage() {
     (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
      user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleDeleteTeacher = (teacherId: string, teacherName: string) => {
+    // In a real app, this would make an API call to delete the teacher
+    toast({
+      title: "Teacher Deleted",
+      description: `${teacherName} has been removed from the system.`,
+    });
+  };
 
   return (
     <Layout>
@@ -75,12 +96,39 @@ export default function TeachersPage() {
                 <p className="text-sm font-medium">{teacher.name}</p>
                 <p className="text-xs text-white hover:text-black truncate">{teacher.email}</p>
               </div>
-              <Button variant="ghost" size="icon" asChild>
-                <Link to={`/admin/teachers/${teacher.id}`}>
-                  <Settings className="h-4 w-4" />
-                  <span className="sr-only">Manage Teacher</span>
-                </Link>
-              </Button>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" asChild>
+                  <Link to={`/admin/teachers/${teacher.id}`}>
+                    <Settings className="h-4 w-4" />
+                    <span className="sr-only">Manage Teacher</span>
+                  </Link>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete Teacher</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Teacher</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete {teacher.name}? This action cannot be undone and will remove all associated class assignments.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDeleteTeacher(teacher.id, teacher.name)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete Teacher
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </Card>
         ))}

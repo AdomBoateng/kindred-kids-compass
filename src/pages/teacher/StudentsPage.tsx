@@ -23,10 +23,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
-import { Search, Plus, FileEdit } from "lucide-react";
+import { Search, Plus, FileEdit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { StudentFormSheet } from "@/components/forms/StudentFormSheet";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,6 +46,7 @@ export default function StudentsPage() {
   const [activeView, setActiveView] = useState("grid");
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const { toast } = useToast();
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
   const teacherClassId = "1";
@@ -54,6 +67,14 @@ export default function StudentsPage() {
   const handleCloseForm = () => {
     setIsAddStudentOpen(false);
     setEditingStudent(null);
+  };
+
+  const handleDeleteStudent = (studentId: string, studentName: string) => {
+    // In a real app, this would make an API call to delete the student
+    toast({
+      title: "Student Deleted",
+      description: `${studentName} has been removed from your class.`,
+    });
   };
   
   return (
@@ -199,21 +220,46 @@ export default function StudentsPage() {
                       <TableCell>{new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()}</TableCell>
                       <TableCell>{student.guardianName}</TableCell>
                       <TableCell>{student.guardianContact}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link to={`/student/${student.id}`}>View</Link>
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleEditStudent(student)}
-                          >
-                            <FileEdit className="h-4 w-4 mr-1" />
-                            Edit
-                          </Button>
-                        </div>
-                      </TableCell>
+                       <TableCell>
+                         <div className="flex gap-2">
+                           <Button variant="ghost" size="sm" asChild>
+                             <Link to={`/student/${student.id}`}>View</Link>
+                           </Button>
+                           <Button 
+                             variant="ghost" 
+                             size="sm"
+                             onClick={() => handleEditStudent(student)}
+                           >
+                             <FileEdit className="h-4 w-4 mr-1" />
+                             Edit
+                           </Button>
+                           <AlertDialog>
+                             <AlertDialogTrigger asChild>
+                               <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                 <Trash2 className="h-4 w-4 mr-1" />
+                                 Delete
+                               </Button>
+                             </AlertDialogTrigger>
+                             <AlertDialogContent>
+                               <AlertDialogHeader>
+                                 <AlertDialogTitle>Delete Student</AlertDialogTitle>
+                                 <AlertDialogDescription>
+                                   Are you sure you want to remove {student.firstName} {student.lastName} from your class? This action cannot be undone.
+                                 </AlertDialogDescription>
+                               </AlertDialogHeader>
+                               <AlertDialogFooter>
+                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                 <AlertDialogAction
+                                   onClick={() => handleDeleteStudent(student.id, `${student.firstName} ${student.lastName}`)}
+                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                 >
+                                   Delete Student
+                                 </AlertDialogAction>
+                               </AlertDialogFooter>
+                             </AlertDialogContent>
+                           </AlertDialog>
+                         </div>
+                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

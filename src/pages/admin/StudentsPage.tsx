@@ -6,11 +6,24 @@ import { Input } from "@/components/ui/input";
 import { StudentCard } from "@/components/cards/StudentCard";
 import { mockStudents, mockClasses } from "@/lib/mock-data";
 import { Link } from "react-router-dom";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
   
   // Filter students based on search term
   const filteredStudents = mockStudents.filter(
@@ -23,6 +36,14 @@ export default function StudentsPage() {
   const getClassInfo = (classId: string) => {
     const classData = mockClasses.find(cls => cls.id === classId);
     return classData ? { id: classData.id, name: classData.name } : { id: "", name: "No Class Assigned" };
+  };
+
+  const handleDeleteStudent = (studentId: string, studentName: string) => {
+    // In a real app, this would make an API call to delete the student
+    toast({
+      title: "Student Deleted",
+      description: `${studentName} has been removed from the system.`,
+    });
   };
 
   return (
@@ -68,11 +89,40 @@ export default function StudentsPage() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredStudents.map((student) => (
-          <StudentCard
-            key={student.id}
-            student={student}
-            classInfo={getClassInfo(student.classId)}
-          />
+          <div key={student.id} className="relative">
+            <StudentCard
+              student={student}
+              classInfo={getClassInfo(student.classId)}
+            />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 z-10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Student</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete {student.firstName} {student.lastName}? This action cannot be undone and will remove all associated records.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => handleDeleteStudent(student.id, `${student.firstName} ${student.lastName}`)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete Student
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         ))}
         
         {filteredStudents.length === 0 && (

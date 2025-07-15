@@ -26,9 +26,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format, subDays } from "date-fns";
-import { Calendar } from "lucide-react";
+import { Calendar, Trash2 } from "lucide-react";
 import { mockClasses, getStudentsByClassId } from "@/lib/mock-data";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock attendance data for the class
 const attendanceData = [
@@ -74,6 +86,7 @@ const mockAttendanceHistory = [
 
 export default function AttendancePage() {
   const [periodFilter, setPeriodFilter] = useState("6weeks");
+  const { toast } = useToast();
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
   const teacherClassId = "1";
@@ -84,6 +97,14 @@ export default function AttendancePage() {
   const averageAttendance = Math.round(
     attendanceData.reduce((sum, item) => sum + item.rate, 0) / attendanceData.length
   );
+
+  const handleDeleteAttendance = (date: string) => {
+    // In a real app, this would make an API call to delete the attendance record
+    toast({
+      title: "Attendance Record Deleted",
+      description: `Attendance record for ${date} has been deleted.`,
+    });
+  };
 
   return (
     <Layout>
@@ -238,13 +259,40 @@ export default function AttendancePage() {
                   <TableCell>{record.totalCount}</TableCell>
                   <TableCell>{record.rate.toFixed(1)}%</TableCell>
                   <TableCell>{record.recordedBy}</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/teacher/attendance/details/${index}`}>
-                        View Details
-                      </Link>
-                    </Button>
-                  </TableCell>
+                   <TableCell>
+                     <div className="flex gap-2">
+                       <Button variant="ghost" size="sm" asChild>
+                         <Link to={`/teacher/attendance/details/${index}`}>
+                           View Details
+                         </Link>
+                       </Button>
+                       <AlertDialog>
+                         <AlertDialogTrigger asChild>
+                           <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                             <Trash2 className="h-4 w-4 mr-1" />
+                             Delete
+                           </Button>
+                         </AlertDialogTrigger>
+                         <AlertDialogContent>
+                           <AlertDialogHeader>
+                             <AlertDialogTitle>Delete Attendance Record</AlertDialogTitle>
+                             <AlertDialogDescription>
+                               Are you sure you want to delete the attendance record for {format(record.date, 'MMM d, yyyy')}? This action cannot be undone.
+                             </AlertDialogDescription>
+                           </AlertDialogHeader>
+                           <AlertDialogFooter>
+                             <AlertDialogCancel>Cancel</AlertDialogCancel>
+                             <AlertDialogAction
+                               onClick={() => handleDeleteAttendance(format(record.date, 'MMM d, yyyy'))}
+                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                             >
+                               Delete Record
+                             </AlertDialogAction>
+                           </AlertDialogFooter>
+                         </AlertDialogContent>
+                       </AlertDialog>
+                     </div>
+                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>

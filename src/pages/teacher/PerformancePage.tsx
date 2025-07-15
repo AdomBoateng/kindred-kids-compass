@@ -19,10 +19,22 @@ import {
   TableHead,
   TableCell
 } from "@/components/ui/table";
-import { Activity } from "lucide-react";
+import { Activity, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
 import { calculateAge } from "@/lib/date-utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample performance data
 const performanceCategories = ["Bible Quiz", "Memory Verse", "Participation", "Craft Project"];
@@ -69,6 +81,7 @@ const mockPerformanceData = [
 export default function PerformancePage() {
   const [periodFilter, setPeriodFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const { toast } = useToast();
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
   const teacherClassId = "1";
@@ -102,6 +115,14 @@ export default function PerformancePage() {
   
   // Sort students by average score (highest first)
   studentPerformance.sort((a, b) => b.averageScore - a.averageScore);
+
+  const handleDeletePerformance = (date: string, type: string) => {
+    // In a real app, this would make an API call to delete the performance record
+    toast({
+      title: "Performance Record Deleted",
+      description: `${type} assessment from ${date} has been deleted.`,
+    });
+  };
 
   return (
     <Layout>
@@ -202,13 +223,40 @@ export default function PerformancePage() {
                       <TableCell>{record.type}</TableCell>
                       <TableCell>{record.students.length}</TableCell>
                       <TableCell>{record.averageScore.toFixed(1)}%</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/teacher/performance/details/${index + 1}`}>
-                            View Details
-                          </Link>
-                        </Button>
-                      </TableCell>
+                       <TableCell>
+                         <div className="flex gap-2">
+                           <Button variant="ghost" size="sm" asChild>
+                             <Link to={`/teacher/performance/details/${index + 1}`}>
+                               View Details
+                             </Link>
+                           </Button>
+                           <AlertDialog>
+                             <AlertDialogTrigger asChild>
+                               <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                 <Trash2 className="h-4 w-4 mr-1" />
+                                 Delete
+                               </Button>
+                             </AlertDialogTrigger>
+                             <AlertDialogContent>
+                               <AlertDialogHeader>
+                                 <AlertDialogTitle>Delete Performance Record</AlertDialogTitle>
+                                 <AlertDialogDescription>
+                                   Are you sure you want to delete the {record.type} assessment from {record.date}? This action cannot be undone and will remove all student scores.
+                                 </AlertDialogDescription>
+                               </AlertDialogHeader>
+                               <AlertDialogFooter>
+                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                 <AlertDialogAction
+                                   onClick={() => handleDeletePerformance(record.date, record.type)}
+                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                 >
+                                   Delete Record
+                                 </AlertDialogAction>
+                               </AlertDialogFooter>
+                             </AlertDialogContent>
+                           </AlertDialog>
+                         </div>
+                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

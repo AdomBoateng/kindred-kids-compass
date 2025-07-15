@@ -7,11 +7,24 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { mockClasses, mockUsers } from "@/lib/mock-data";
 import { Link } from "react-router-dom";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 
 export default function ClassesPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
   
   // Filter classes based on search term
   const filteredClasses = mockClasses.filter(
@@ -24,6 +37,14 @@ export default function ClassesPage() {
     return teacherIds
       .map(id => mockUsers.find(user => user.id === id)?.name || "Unknown")
       .join(", ");
+  };
+
+  const handleDeleteClass = (classId: string, className: string) => {
+    // In a real app, this would make an API call to delete the class
+    toast({
+      title: "Class Deleted",
+      description: `${className} has been removed from the system.`,
+    });
   };
 
   return (
@@ -74,13 +95,41 @@ export default function ClassesPage() {
           >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{cls.name}</CardTitle>
-                <Badge
-                  variant="outline"
-                  className="text-white border-white group-hover:text-black group-hover:border-black"
-                >
-                  {cls.ageGroup}
-                </Badge>
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{cls.name}</CardTitle>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className="text-white border-white group-hover:text-black group-hover:border-black"
+                  >
+                    {cls.ageGroup}
+                  </Badge>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive p-1">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Class</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete {cls.name}? This action cannot be undone and will remove all students and assignments from this class.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteClass(cls.id, cls.name)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete Class
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

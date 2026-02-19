@@ -17,6 +17,9 @@ export default function TeacherChurchBranchPage() {
         <h2 className="text-xl font-semibold">{church?.name}</h2>
         <p className="text-muted-foreground">Branch: {church?.branchName}</p>
         <p className="text-muted-foreground">Location: {church?.location}</p>
+        {church?.region && <p className="text-muted-foreground">Region: {church.region}</p>}
+        {church?.district && <p className="text-muted-foreground">District: {church.district}</p>}
+        {church?.area && <p className="text-muted-foreground">Area: {church.area}</p>}
         <p className="pt-2">Active Classes: {classes.length}</p>
         <p>Children in Branch: {students.length}</p>
       </Card>

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StudentCard } from "@/components/cards/StudentCard";
-import { mockStudents, mockClasses } from "@/lib/mock-data";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { Link } from "react-router-dom";
 import { Plus, Search, Trash2 } from "lucide-react";
 import {
@@ -24,9 +24,10 @@ import logo from "@/assets/logo.png";
 export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const { students, classes, church } = useChurchScope();
   
   // Filter students based on search term
-  const filteredStudents = mockStudents.filter(
+  const filteredStudents = students.filter(
     student => 
       student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.lastName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -34,7 +35,7 @@ export default function StudentsPage() {
 
   // Get class info for each student
   const getClassInfo = (classId: string) => {
-    const classData = mockClasses.find(cls => cls.id === classId);
+    const classData = classes.find(cls => cls.id === classId);
     return classData ? { id: classData.id, name: classData.name } : { id: "", name: "No Class Assigned" };
   };
 
@@ -63,7 +64,7 @@ export default function StudentsPage() {
       />
       <PageHeader 
         title="Students" 
-        description="Manage student records and information" 
+        description={`Manage student records for ${church?.branchName || 'your branch'}`} 
       />
       
       <div className="flex justify-between items-center mb-6">

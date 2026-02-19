@@ -1,17 +1,8 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Define User type
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'teacher';
-  avatar?: string;
-  phone?: string;
-  bio?: string;
-}
+import { getChurchById, mockUsers } from '@/lib/mock-data';
+import { User } from '@/types';
 
 // Define AuthContext interface
 interface AuthContextType {
@@ -24,27 +15,41 @@ interface AuthContextType {
 // Create Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const mockUsers = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@kindredkids.church',
-    role: 'admin' as const,
-    avatar: 'https://i.pravatar.cc/150?img=68',
-    phone: '(555) 123-4567',
-    bio: 'Church administrator with a passion for helping children grow in their faith.'
-  },
-  {
-    id: '2',
-    name: 'Teacher User',
-    email: 'teacher@kindredkids.church',
-    role: 'teacher' as const,
-    avatar: 'https://i.pravatar.cc/150?img=32',
-    phone: '(555) 987-6543',
-    bio: 'Dedicated Sunday school teacher with 5 years of experience teaching preschool children.'
+
+interface RegisteredAdminCredential {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  churchId: string;
+  branchName: string;
+  location: string;
+  region: string;
+  district: string;
+  area: string;
+}
+
+const REGISTERED_ADMINS_STORAGE_KEY = 'registeredAdmins';
+
+const demoCredentials: Record<string, string> = {
+  'admin.central@church.org': 'admin123',
+  'admin.north@church.org': 'admin123',
+  'teacher.central@church.org': 'teacher123',
+  'michael.central@church.org': 'teacher123',
+  'teacher.north@church.org': 'teacher123',
+};
+
+
+const getRegisteredAdmins = (): RegisteredAdminCredential[] => {
+  const rawAdmins = localStorage.getItem(REGISTERED_ADMINS_STORAGE_KEY);
+  if (!rawAdmins) return [];
+
+  try {
+    return JSON.parse(rawAdmins) as RegisteredAdminCredential[];
+  } catch {
+    return [];
   }
-];
+};
 
 // Create AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -64,29 +69,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Fix login to work with demo credentials
-      let foundUser = null;
-      
-      // Check if using admin credentials from LoginPage
-      if (email === 'admin@church.org' && password === 'admin123') {
-        foundUser = mockUsers.find(u => u.role === 'admin');
-      } 
-      // Check if using teacher credentials from LoginPage
-      else if (email === 'teacher@church.org' && password === 'teacher123') {
-        foundUser = mockUsers.find(u => u.role === 'teacher');
-      }
-      // Also allow direct login with mockUser emails
-      else {
-        foundUser = mockUsers.find(u => u.email === email);
-      }
-      
-      if (!foundUser) {
-        throw new Error('Invalid credentials');
+      const normalizedEmail = email.toLowerCase();
+      const expectedPassword = demoCredentials[normalizedEmail];
+      let foundUser = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
+
+      if (!foundUser || !expectedPassword || password !== expectedPassword) {
+        const registeredAdmins = getRegisteredAdmins();
+        const registeredAdmin = registeredAdmins.find(
+          (admin) => admin.email.toLowerCase() === normalizedEmail && admin.password === password,
+        );
+
+        if (!registeredAdmin) {
+          throw new Error('Invalid credentials');
+        }
+
+        foundUser = {
+          id: registeredAdmin.id,
+          name: registeredAdmin.name,
+          email: registeredAdmin.email,
+          role: 'admin',
+          churchId: registeredAdmin.churchId,
+        };
       }
       
       // Set user in state and localStorage
       setUser(foundUser);
       localStorage.setItem('user', JSON.stringify(foundUser));
+
+      const church = getChurchById(foundUser.churchId);
+      if (church) {
+        localStorage.setItem('activeChurch', JSON.stringify(church));
+      } else {
+        const registeredAdmins = getRegisteredAdmins();
+        const registeredAdmin = registeredAdmins.find((admin) => admin.id === foundUser.id);
+        if (registeredAdmin) {
+          localStorage.setItem('activeChurch', JSON.stringify({
+            id: registeredAdmin.churchId,
+            name: 'Kindred Kids',
+            branchName: registeredAdmin.branchName,
+            location: registeredAdmin.location,
+            region: registeredAdmin.region,
+            district: registeredAdmin.district,
+            area: registeredAdmin.area,
+          }));
+        }
+      }
       
       // Redirect based on role
       if (foundUser.role === 'admin') {

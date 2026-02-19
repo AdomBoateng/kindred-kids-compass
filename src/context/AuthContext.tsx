@@ -15,12 +15,40 @@ interface AuthContextType {
 // Create Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
+interface RegisteredAdminCredential {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  churchId: string;
+  branchName: string;
+  location: string;
+  region: string;
+  district: string;
+  area: string;
+}
+
+const REGISTERED_ADMINS_STORAGE_KEY = 'registeredAdmins';
+
 const demoCredentials: Record<string, string> = {
   'admin.central@church.org': 'admin123',
   'admin.north@church.org': 'admin123',
   'teacher.central@church.org': 'teacher123',
   'michael.central@church.org': 'teacher123',
   'teacher.north@church.org': 'teacher123',
+};
+
+
+const getRegisteredAdmins = (): RegisteredAdminCredential[] => {
+  const rawAdmins = localStorage.getItem(REGISTERED_ADMINS_STORAGE_KEY);
+  if (!rawAdmins) return [];
+
+  try {
+    return JSON.parse(rawAdmins) as RegisteredAdminCredential[];
+  } catch {
+    return [];
+  }
 };
 
 // Create AuthProvider component
@@ -41,11 +69,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const expectedPassword = demoCredentials[email.toLowerCase()];
-      const foundUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      const normalizedEmail = email.toLowerCase();
+      const expectedPassword = demoCredentials[normalizedEmail];
+      let foundUser = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
 
       if (!foundUser || !expectedPassword || password !== expectedPassword) {
-        throw new Error('Invalid credentials');
+        const registeredAdmins = getRegisteredAdmins();
+        const registeredAdmin = registeredAdmins.find(
+          (admin) => admin.email.toLowerCase() === normalizedEmail && admin.password === password,
+        );
+
+        if (!registeredAdmin) {
+          throw new Error('Invalid credentials');
+        }
+
+        foundUser = {
+          id: registeredAdmin.id,
+          name: registeredAdmin.name,
+          email: registeredAdmin.email,
+          role: 'admin',
+          churchId: registeredAdmin.churchId,
+        };
       }
       
       // Set user in state and localStorage
@@ -55,6 +99,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const church = getChurchById(foundUser.churchId);
       if (church) {
         localStorage.setItem('activeChurch', JSON.stringify(church));
+      } else {
+        const registeredAdmins = getRegisteredAdmins();
+        const registeredAdmin = registeredAdmins.find((admin) => admin.id === foundUser.id);
+        if (registeredAdmin) {
+          localStorage.setItem('activeChurch', JSON.stringify({
+            id: registeredAdmin.churchId,
+            name: 'Kindred Kids',
+            branchName: registeredAdmin.branchName,
+            location: registeredAdmin.location,
+            region: registeredAdmin.region,
+            district: registeredAdmin.district,
+            area: registeredAdmin.area,
+          }));
+        }
       }
       
       // Redirect based on role

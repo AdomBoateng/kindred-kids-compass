@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,6 +100,7 @@ export default function LoginPage() {
             <p>North Admin: admin.north@church.org / admin123</p>
             <p>Central Teacher: teacher.central@church.org / teacher123</p>
             <p>North Teacher: teacher.north@church.org / teacher123</p>
+            <p className="pt-2">Need a branch admin account? <Link to="/signup" className="text-primary hover:underline">Sign up</Link></p>
           </CardFooter>
         </Card>
       </div>

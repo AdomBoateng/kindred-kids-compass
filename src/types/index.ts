@@ -14,6 +14,9 @@ export interface Church {
   name: string;
   branchName: string;
   location: string;
+  region?: string;
+  district?: string;
+  area?: string;
 }
 
 export interface Student {

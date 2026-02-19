@@ -9,6 +9,7 @@ import { AuthProvider } from "@/context/AuthContext";
 // Pages
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import NotFound from "./pages/NotFound";
 
 // Admin pages
@@ -58,6 +59,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />

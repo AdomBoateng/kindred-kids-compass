@@ -17,20 +17,22 @@ function getActiveChurchFromStorage(churchId?: string): Church | undefined {
   }
 }
 
+import { getChurchById, getClassesByChurchId, getStudentsByChurchId, getUsersByChurchId } from "@/lib/mock-data";
+
 export function useChurchScope() {
   const { user } = useAuth();
-  const churchId = user?.churchId;
 
   return useMemo(() => {
-    const users = getUsersByChurchId(churchId);
+    const churchId = user?.churchId;
 
     return {
       churchId,
       church: getChurchById(churchId) || getActiveChurchFromStorage(churchId),
-      users,
+      church: getChurchById(churchId),
+      users: getUsersByChurchId(churchId),
       classes: getClassesByChurchId(churchId),
       students: getStudentsByChurchId(churchId),
-      teachers: users.filter((scopeUser) => scopeUser.role === "teacher"),
+      teachers: getUsersByChurchId(churchId).filter((scopeUser) => scopeUser.role === "teacher"),
     };
-  }, [churchId]);
+  }, [user]);
 }

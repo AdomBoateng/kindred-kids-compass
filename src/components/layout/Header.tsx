@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
+import { getChurchById } from '@/lib/mock-data';
 import { Bell, Menu, X } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
 export function Header() {
   const { user, logout } = useAuth();
+  const church = getChurchById(user?.churchId);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -65,6 +67,7 @@ export function Header() {
                 <Link to="/admin/teachers" className="text-foreground/80 hover:text-foreground transition-colors">Teachers</Link>
                 <Link to="/admin/classes" className="text-foreground/80 hover:text-foreground transition-colors">Classes</Link>
                 <Link to="/admin/students" className="text-foreground/80 hover:text-foreground transition-colors">Students</Link>
+                <Link to="/admin/church" className="text-foreground/80 hover:text-foreground transition-colors">Church</Link>
               </>
             ) : (
               <>
@@ -72,6 +75,7 @@ export function Header() {
                 <Link to="/teacher/students" className="text-foreground/80 hover:text-foreground transition-colors">Students</Link>
                 <Link to="/teacher/attendance" className="text-foreground/80 hover:text-foreground transition-colors">Attendance</Link>
                 <Link to="/teacher/performance" className="text-foreground/80 hover:text-foreground transition-colors">Performance</Link>
+                <Link to="/teacher/church" className="text-foreground/80 hover:text-foreground transition-colors">Church</Link>
               </>
             )}
           </nav>
@@ -125,6 +129,7 @@ export function Header() {
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
                       <p>{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{church?.branchName}</p>
                       <p className="text-xs text-muted-foreground">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
                     </div>
                   </DropdownMenuLabel>
@@ -170,6 +175,7 @@ export function Header() {
                 <Link to="/admin/teachers" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Teachers</Link>
                 <Link to="/admin/classes" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Classes</Link>
                 <Link to="/admin/students" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Students</Link>
+                <Link to="/admin/church" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Church</Link>
               </>
             ) : (
               <>
@@ -177,6 +183,7 @@ export function Header() {
                 <Link to="/teacher/students" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Students</Link>
                 <Link to="/teacher/attendance" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Attendance</Link>
                 <Link to="/teacher/performance" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Performance</Link>
+                <Link to="/teacher/church" className="px-4 py-2 hover:bg-muted rounded-md" onClick={closeMenu}>Church</Link>
               </>
             )}
             <div className="border-t pt-2">

@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { format, subDays } from "date-fns";
 import { Calendar, Trash2 } from "lucide-react";
-import { mockClasses, getStudentsByClassId } from "@/lib/mock-data";
+import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
 import {
   AlertDialog,
@@ -41,6 +41,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 // Mock attendance data for the class
 const attendanceData = [
@@ -87,11 +88,11 @@ const mockAttendanceHistory = [
 export default function AttendancePage() {
   const [periodFilter, setPeriodFilter] = useState("6weeks");
   const { toast } = useToast();
+  const { user } = useAuth();
   
-  // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClassId = "1";
-  const teacherClass = mockClasses.find(c => c.id === teacherClassId);
-  const classStudents = getStudentsByClassId(teacherClassId);
+  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const teacherClassId = teacherClass?.id || "";
+  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   // Calculate average attendance rate
   const averageAttendance = Math.round(

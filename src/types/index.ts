@@ -5,7 +5,18 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  churchId: string;
   avatar?: string;
+}
+
+export interface Church {
+  id: string;
+  name: string;
+  branchName: string;
+  location: string;
+  region?: string;
+  district?: string;
+  area?: string;
 }
 
 export interface Student {
@@ -18,6 +29,7 @@ export interface Student {
   allergies?: string;
   notes?: string;
   classId: string;
+  churchId: string;
   avatar?: string;
   joinDate: string;
   gender?: "male" | "female" | "other";
@@ -30,12 +42,14 @@ export interface Class {
   ageGroup: string;
   teacherIds: string[];
   studentIds: string[];
+  churchId: string;
 }
 
 export interface Attendance {
   id: string;
   date: string;
   classId: string;
+  churchId: string;
   students: {
     studentId: string;
     present: boolean;
@@ -50,6 +64,7 @@ export interface TestScore {
   score: number;
   maxScore: number;
   date: string;
+  churchId: string;
   notes?: string;
 }
 

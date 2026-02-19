@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/table";
 import { Activity, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
+import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
+import { useAuth } from "@/context/AuthContext";
 import { calculateAge } from "@/lib/date-utils";
 import {
   AlertDialog,
@@ -79,14 +80,15 @@ const mockPerformanceData = [
 ];
 
 export default function PerformancePage() {
+  const { user } = useAuth();
   const [periodFilter, setPeriodFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const { toast } = useToast();
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClassId = "1";
-  const teacherClass = mockClasses.find(c => c.id === teacherClassId);
-  const classStudents = getStudentsByClassId(teacherClassId);
+  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const teacherClassId = teacherClass?.id || "";
+  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   // Calculate student performance stats
   const studentPerformance = classStudents.map(student => {

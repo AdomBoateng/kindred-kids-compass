@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { mockClasses, mockUsers } from "@/lib/mock-data";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { Link } from "react-router-dom";
 import { Plus, Users, Trash2 } from "lucide-react";
 import {
@@ -25,9 +25,10 @@ import logo from "@/assets/logo.png";
 export default function ClassesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const { classes, users, church } = useChurchScope();
   
   // Filter classes based on search term
-  const filteredClasses = mockClasses.filter(
+  const filteredClasses = classes.filter(
     cls => cls.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
            cls.ageGroup.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -35,7 +36,7 @@ export default function ClassesPage() {
   // Find teacher names for each class
   const getTeacherNames = (teacherIds: string[]) => {
     return teacherIds
-      .map(id => mockUsers.find(user => user.id === id)?.name || "Unknown")
+      .map(id => users.find(user => user.id === id)?.name || "Unknown")
       .join(", ");
   };
 
@@ -64,7 +65,7 @@ export default function ClassesPage() {
       />
       <PageHeader 
         title="Classes" 
-        description="Manage classes and their assignments" 
+        description={`Manage classes and assignments for ${church?.branchName || 'your branch'}`} 
       />
       
       <div className="flex justify-between items-center mb-6">

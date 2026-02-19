@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { mockUsers } from "@/lib/mock-data";
 import { Settings, UserPlus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -21,16 +20,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
+import { useChurchScope } from "@/hooks/use-church-scope";
 
 export default function TeachersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const { teachers, church } = useChurchScope();
   
-  // Filter teachers from mockUsers
-  const teachers = mockUsers.filter(
-    user => user.role === "teacher" && 
-    (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-     user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredTeachers = teachers.filter(
+    user => user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleDeleteTeacher = (teacherId: string, teacherName: string) => {
@@ -58,7 +57,7 @@ export default function TeachersPage() {
             />
       <PageHeader 
         title="Teachers" 
-        description="Manage teachers and their class assignments"
+        description={`Manage teachers and their class assignments for ${church?.branchName || 'your branch'}`}
       />
       
       <div className="flex justify-between items-center mb-6">
@@ -82,7 +81,7 @@ export default function TeachersPage() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {teachers.map((teacher) => (
+        {filteredTeachers.map((teacher) => (
           <Card
             key={teacher.id}
             className="p-4 bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black"
@@ -133,7 +132,7 @@ export default function TeachersPage() {
           </Card>
         ))}
         
-        {teachers.length === 0 && (
+        {filteredTeachers.length === 0 && (
           <div className="col-span-full flex justify-center p-8 text-muted-foreground">
             No teachers found.
           </div>

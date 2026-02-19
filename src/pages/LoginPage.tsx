@@ -62,7 +62,7 @@ export default function LoginPage() {
           <CardHeader>
             <CardTitle>Welcome Back</CardTitle>
             <CardDescription>
-              Sign in to your account to continue
+              Sign in to your church branch account
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@church.org or teacher@church.org"
+                  placeholder="admin.central@church.org"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -94,15 +94,12 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          {/* <CardFooter className="flex flex-col items-center">
-            <p className="text-sm text-muted-foreground">
-              Demo credentials:
-            </p>
-            <div className="text-xs text-muted-foreground space-y-1 mt-1">
-              <p>Admin: admin@church.org / admin123</p>
-              <p>Teacher: teacher@church.org / teacher123</p>
-            </div>
-          </CardFooter> */}
+          <CardFooter className="flex flex-col items-start text-xs text-muted-foreground gap-1">
+            <p>Central Admin: admin.central@church.org / admin123</p>
+            <p>North Admin: admin.north@church.org / admin123</p>
+            <p>Central Teacher: teacher.central@church.org / teacher123</p>
+            <p>North Teacher: teacher.north@church.org / teacher123</p>
+          </CardFooter>
         </Card>
       </div>
     </div>

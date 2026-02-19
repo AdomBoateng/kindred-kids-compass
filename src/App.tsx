@@ -25,6 +25,7 @@ import NewStudentPage from "./pages/admin/NewStudentPage";
 import NewTeacherPage from "./pages/admin/NewTeacherPage";
 import AttendanceReportsPage from "./pages/admin/AttendanceReportsPage";
 import AssignTeachersPage from "./pages/admin/AssignTeachersPage";
+import ChurchBranchPage from "./pages/admin/ChurchBranchPage";
 
 // Teacher pages
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
@@ -42,6 +43,7 @@ import TeacherSettingsPage from "./pages/teacher/TeacherSettingsPage";
 import RecordStudentAttendancePage from "./pages/teacher/RecordStudentAttendancePage";
 import AddStudentPerformancePage from "./pages/teacher/AddStudentPerformancePage";
 import AddStudentNotePage from "./pages/teacher/AddStudentNotePage";
+import TeacherChurchBranchPage from "./pages/teacher/ChurchBranchPage";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,7 @@ const App = () => (
             <Route path="/admin/attendance/reports" element={<AttendanceReportsPage />} />
             <Route path="/admin/profile" element={<AdminProfilePage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/church" element={<ChurchBranchPage />} />
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             
             {/* Teacher routes */}
@@ -86,6 +89,7 @@ const App = () => (
             <Route path="/teacher/reports" element={<ReportsPage />} />
             <Route path="/teacher/profile" element={<TeacherProfilePage />} />
             <Route path="/teacher/settings" element={<TeacherSettingsPage />} />
+            <Route path="/teacher/church" element={<TeacherChurchBranchPage />} />
             <Route path="/teacher" element={<Navigate to="/teacher/dashboard" replace />} />
             
             {/* Individual student action routes */}

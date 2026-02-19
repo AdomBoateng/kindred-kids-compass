@@ -17,11 +17,12 @@ create table if not exists churches (
   created_at timestamptz not null default now()
 );
 
-create table if not exists profiles (
+create table if not exists users (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
   email text unique not null,
   phone text,
+  avatar_url text,
   role app_role not null,
   church_id uuid not null references churches(id) on delete restrict,
   created_at timestamptz not null default now()
@@ -39,7 +40,7 @@ create table if not exists classes (
 create table if not exists class_teachers (
   id uuid primary key default uuid_generate_v4(),
   class_id uuid not null references classes(id) on delete cascade,
-  teacher_id uuid not null references profiles(id) on delete cascade,
+  teacher_id uuid not null references users(id) on delete cascade,
   unique(class_id, teacher_id)
 );
 
@@ -64,7 +65,7 @@ create table if not exists attendance_sessions (
   church_id uuid not null references churches(id) on delete cascade,
   class_id uuid not null references classes(id) on delete cascade,
   session_date date not null,
-  recorded_by uuid not null references profiles(id) on delete restrict,
+  recorded_by uuid not null references users(id) on delete restrict,
   created_at timestamptz not null default now(),
   unique(class_id, session_date)
 );
@@ -84,7 +85,7 @@ create table if not exists performance_tests (
   class_id uuid not null references classes(id) on delete cascade,
   title text not null,
   taken_on date not null,
-  recorded_by uuid not null references profiles(id) on delete restrict,
+  recorded_by uuid not null references users(id) on delete restrict,
   created_at timestamptz not null default now()
 );
 
@@ -102,7 +103,7 @@ create table if not exists student_notes (
   id uuid primary key default uuid_generate_v4(),
   church_id uuid not null references churches(id) on delete cascade,
   student_id uuid not null references students(id) on delete cascade,
-  author_id uuid not null references profiles(id) on delete restrict,
+  author_id uuid not null references users(id) on delete restrict,
   note text not null,
   created_at timestamptz not null default now()
 );
@@ -118,7 +119,7 @@ create table if not exists notifications (
 );
 
 -- Useful indexes
-create index if not exists idx_profiles_church_role on profiles(church_id, role);
+create index if not exists idx_users_church_role on users(church_id, role);
 create index if not exists idx_students_church_class on students(church_id, class_id);
 create index if not exists idx_attendance_sessions_church_date on attendance_sessions(church_id, session_date desc);
 create index if not exists idx_performance_tests_church_date on performance_tests(church_id, taken_on desc);
@@ -224,7 +225,7 @@ end;
 $$;
 
 -- RLS
-alter table profiles enable row level security;
+alter table users enable row level security;
 alter table classes enable row level security;
 alter table class_teachers enable row level security;
 alter table students enable row level security;
@@ -235,22 +236,22 @@ alter table performance_scores enable row level security;
 alter table student_notes enable row level security;
 alter table notifications enable row level security;
 
-create policy "same church profiles" on profiles for select using (
-  church_id = (select church_id from profiles where id = auth.uid())
+create policy "same church users" on users for select using (
+  church_id = (select church_id from users where id = auth.uid())
 );
 
 create policy "same church classes" on classes for select using (
-  church_id = (select church_id from profiles where id = auth.uid())
+  church_id = (select church_id from users where id = auth.uid())
 );
 
 create policy "same church students" on students for all using (
-  church_id = (select church_id from profiles where id = auth.uid())
+  church_id = (select church_id from users where id = auth.uid())
 ) with check (
-  church_id = (select church_id from profiles where id = auth.uid())
+  church_id = (select church_id from users where id = auth.uid())
 );
 
 create policy "same church notifications" on notifications for select using (
-  church_id = (select church_id from profiles where id = auth.uid())
+  church_id = (select church_id from users where id = auth.uid())
 );
 
 -- Storage bucket setup (run once; adjust for existing bucket)
@@ -267,17 +268,22 @@ on storage.objects for insert
 with check (
   bucket_id = 'student-avatars'
   and (storage.foldername(name))[1] = (
-    select church_id::text from profiles where id = auth.uid()
+    select church_id::text from users where id = auth.uid()
   )
 );
 
 -- Schedule birthday notifications daily at 06:00 UTC
 create extension if not exists pg_cron;
 
-select cron.unschedule('daily_birthday_notifications')
-where exists (
-  select 1 from cron.job where jobname = 'daily_birthday_notifications'
-);
+do $$
+declare
+  existing_job_id bigint;
+begin
+  select jobid into existing_job_id from cron.job where jobname = 'daily_birthday_notifications';
+  if existing_job_id is not null then
+    perform cron.unschedule(existing_job_id);
+  end if;
+end $$;
 
 select cron.schedule(
   'daily_birthday_notifications',

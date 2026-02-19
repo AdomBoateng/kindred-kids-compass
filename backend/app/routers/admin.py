@@ -13,7 +13,7 @@ async def dashboard(profile=Depends(require_role("admin"))):
     students = supabase_admin.table("students").select("id", count="exact").eq("church_id", church_id).execute()
     classes = supabase_admin.table("classes").select("id", count="exact").eq("church_id", church_id).execute()
     teachers = (
-        supabase_admin.table("profiles")
+        supabase_admin.table("users")
         .select("id", count="exact")
         .eq("church_id", church_id)
         .eq("role", "teacher")
@@ -37,7 +37,7 @@ async def update_church(payload: dict, profile=Depends(require_role("admin"))):
 @router.get("/teachers")
 async def list_teachers(profile=Depends(require_role("admin"))):
     res = (
-        supabase_admin.table("profiles")
+        supabase_admin.table("users")
         .select("id, full_name, email, role, church_id")
         .eq("church_id", profile["church_id"])
         .eq("role", "teacher")
@@ -59,7 +59,7 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
         raise HTTPException(status_code=400, detail="Failed to create auth user")
 
     insert = (
-        supabase_admin.table("profiles")
+        supabase_admin.table("users")
         .insert(
             {
                 "id": auth_res.user.id,
@@ -77,7 +77,7 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
 
 @router.delete("/teachers/{teacher_id}")
 async def remove_teacher(teacher_id: str, profile=Depends(require_role("admin"))):
-    supabase_admin.table("profiles").delete().eq("id", teacher_id).eq("church_id", profile["church_id"]).eq("role", "teacher").execute()
+    supabase_admin.table("users").delete().eq("id", teacher_id).eq("church_id", profile["church_id"]).eq("role", "teacher").execute()
     supabase_admin.auth.admin.delete_user(teacher_id)
     return {"deleted": True}
 
@@ -109,7 +109,7 @@ async def delete_class(class_id: str, profile=Depends(require_role("admin"))):
 @router.post("/classes/assign-teacher")
 async def assign_teacher(payload: TeacherClassAssign, profile=Depends(require_role("admin"))):
     teacher = (
-        supabase_admin.table("profiles")
+        supabase_admin.table("users")
         .select("id")
         .eq("id", payload.teacher_id)
         .eq("church_id", profile["church_id"])

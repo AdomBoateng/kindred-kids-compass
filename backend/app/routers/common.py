@@ -11,6 +11,12 @@ async def me(profile=Depends(get_current_profile)):
     return profile
 
 
+@router.get("/church")
+async def active_church(profile=Depends(get_current_profile)):
+    church = supabase_admin.table("churches").select("*").eq("id", profile["church_id"]).single().execute()
+    return church.data
+
+
 @router.get("/notifications")
 async def notifications(profile=Depends(get_current_profile)):
     res = (
@@ -25,12 +31,22 @@ async def notifications(profile=Depends(get_current_profile)):
     return res.data
 
 
+@router.post("/notifications")
+async def create_notification(payload: dict, profile=Depends(get_current_profile)):
+    data = {
+        "church_id": profile["church_id"],
+        "target_role": payload.get("target_role", "all"),
+        "category": payload.get("category", "general"),
+        "title": payload["title"],
+        "message": payload["message"],
+    }
+    res = supabase_admin.table("notifications").insert(data).execute()
+    return res.data[0]
+
+
 @router.get("/birthdays")
 async def upcoming_birthdays(days: int = 30, profile=Depends(get_current_profile)):
-    res = supabase_admin.rpc(
-        "get_upcoming_birthdays",
-        {"p_church_id": profile["church_id"], "p_days": days},
-    ).execute()
+    res = supabase_admin.rpc("get_upcoming_birthdays", {"p_church_id": profile["church_id"], "p_days": days}).execute()
     return res.data
 
 

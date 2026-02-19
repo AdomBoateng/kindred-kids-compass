@@ -270,3 +270,17 @@ with check (
     select church_id::text from profiles where id = auth.uid()
   )
 );
+
+-- Schedule birthday notifications daily at 06:00 UTC
+create extension if not exists pg_cron;
+
+select cron.unschedule('daily_birthday_notifications')
+where exists (
+  select 1 from cron.job where jobname = 'daily_birthday_notifications'
+);
+
+select cron.schedule(
+  'daily_birthday_notifications',
+  '0 6 * * *',
+  $$select create_daily_birthday_notifications();$$
+);

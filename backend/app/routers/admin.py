@@ -19,11 +19,19 @@ async def dashboard(profile=Depends(require_role("admin"))):
         .eq("role", "teacher")
         .execute()
     )
-    return {
-        "students": students.count or 0,
-        "classes": classes.count or 0,
-        "teachers": teachers.count or 0,
-    }
+    return {"students": students.count or 0, "classes": classes.count or 0, "teachers": teachers.count or 0}
+
+
+@router.get("/church")
+async def get_church(profile=Depends(require_role("admin"))):
+    res = supabase_admin.table("churches").select("*").eq("id", profile["church_id"]).single().execute()
+    return res.data
+
+
+@router.patch("/church")
+async def update_church(payload: dict, profile=Depends(require_role("admin"))):
+    res = supabase_admin.table("churches").update(payload).eq("id", profile["church_id"]).execute()
+    return res.data[0]
 
 
 @router.get("/teachers")
@@ -67,6 +75,13 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
     return insert.data[0]
 
 
+@router.delete("/teachers/{teacher_id}")
+async def remove_teacher(teacher_id: str, profile=Depends(require_role("admin"))):
+    supabase_admin.table("profiles").delete().eq("id", teacher_id).eq("church_id", profile["church_id"]).eq("role", "teacher").execute()
+    supabase_admin.auth.admin.delete_user(teacher_id)
+    return {"deleted": True}
+
+
 @router.get("/classes")
 async def list_classes(profile=Depends(require_role("admin"))):
     res = supabase_admin.table("classes").select("*").eq("church_id", profile["church_id"]).order("name").execute()
@@ -75,12 +90,20 @@ async def list_classes(profile=Depends(require_role("admin"))):
 
 @router.post("/classes")
 async def create_class(payload: ClassCreate, profile=Depends(require_role("admin"))):
-    res = (
-        supabase_admin.table("classes")
-        .insert({**payload.model_dump(), "church_id": profile["church_id"]})
-        .execute()
-    )
+    res = supabase_admin.table("classes").insert({**payload.model_dump(), "church_id": profile["church_id"]}).execute()
     return res.data[0]
+
+
+@router.patch("/classes/{class_id}")
+async def update_class(class_id: str, payload: dict, profile=Depends(require_role("admin"))):
+    res = supabase_admin.table("classes").update(payload).eq("id", class_id).eq("church_id", profile["church_id"]).execute()
+    return res.data[0]
+
+
+@router.delete("/classes/{class_id}")
+async def delete_class(class_id: str, profile=Depends(require_role("admin"))):
+    supabase_admin.table("classes").delete().eq("id", class_id).eq("church_id", profile["church_id"]).execute()
+    return {"deleted": True}
 
 
 @router.post("/classes/assign-teacher")
@@ -119,3 +142,33 @@ async def create_student(payload: StudentCreate, profile=Depends(require_role("a
     body["church_id"] = profile["church_id"]
     res = supabase_admin.table("students").insert(body).execute()
     return res.data[0]
+
+
+@router.get("/students/{student_id}")
+async def get_student(student_id: str, profile=Depends(require_role("admin"))):
+    res = supabase_admin.table("students").select("*").eq("id", student_id).eq("church_id", profile["church_id"]).single().execute()
+    return res.data
+
+
+@router.patch("/students/{student_id}")
+async def update_student(student_id: str, payload: dict, profile=Depends(require_role("admin"))):
+    res = supabase_admin.table("students").update(payload).eq("id", student_id).eq("church_id", profile["church_id"]).execute()
+    return res.data[0]
+
+
+@router.delete("/students/{student_id}")
+async def delete_student(student_id: str, profile=Depends(require_role("admin"))):
+    supabase_admin.table("students").delete().eq("id", student_id).eq("church_id", profile["church_id"]).execute()
+    return {"deleted": True}
+
+
+@router.get("/attendance-reports")
+async def attendance_reports(profile=Depends(require_role("admin"))):
+    res = supabase_admin.rpc("get_attendance_analytics", {"p_church_id": profile["church_id"], "p_teacher_id": None}).execute()
+    return res.data
+
+
+@router.get("/performance-reports")
+async def performance_reports(profile=Depends(require_role("admin"))):
+    res = supabase_admin.rpc("get_performance_analytics", {"p_church_id": profile["church_id"], "p_teacher_id": None}).execute()
+    return res.data

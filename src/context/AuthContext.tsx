@@ -1,17 +1,8 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Define User type
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'teacher';
-  avatar?: string;
-  phone?: string;
-  bio?: string;
-}
+import { getChurchById, mockUsers } from '@/lib/mock-data';
+import { User } from '@/types';
 
 // Define AuthContext interface
 interface AuthContextType {
@@ -24,27 +15,13 @@ interface AuthContextType {
 // Create Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const mockUsers = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@kindredkids.church',
-    role: 'admin' as const,
-    avatar: 'https://i.pravatar.cc/150?img=68',
-    phone: '(555) 123-4567',
-    bio: 'Church administrator with a passion for helping children grow in their faith.'
-  },
-  {
-    id: '2',
-    name: 'Teacher User',
-    email: 'teacher@kindredkids.church',
-    role: 'teacher' as const,
-    avatar: 'https://i.pravatar.cc/150?img=32',
-    phone: '(555) 987-6543',
-    bio: 'Dedicated Sunday school teacher with 5 years of experience teaching preschool children.'
-  }
-];
+const demoCredentials: Record<string, string> = {
+  'admin.central@church.org': 'admin123',
+  'admin.north@church.org': 'admin123',
+  'teacher.central@church.org': 'teacher123',
+  'michael.central@church.org': 'teacher123',
+  'teacher.north@church.org': 'teacher123',
+};
 
 // Create AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -64,29 +41,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Fix login to work with demo credentials
-      let foundUser = null;
-      
-      // Check if using admin credentials from LoginPage
-      if (email === 'admin@church.org' && password === 'admin123') {
-        foundUser = mockUsers.find(u => u.role === 'admin');
-      } 
-      // Check if using teacher credentials from LoginPage
-      else if (email === 'teacher@church.org' && password === 'teacher123') {
-        foundUser = mockUsers.find(u => u.role === 'teacher');
-      }
-      // Also allow direct login with mockUser emails
-      else {
-        foundUser = mockUsers.find(u => u.email === email);
-      }
-      
-      if (!foundUser) {
+      const expectedPassword = demoCredentials[email.toLowerCase()];
+      const foundUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+      if (!foundUser || !expectedPassword || password !== expectedPassword) {
         throw new Error('Invalid credentials');
       }
       
       // Set user in state and localStorage
       setUser(foundUser);
       localStorage.setItem('user', JSON.stringify(foundUser));
+
+      const church = getChurchById(foundUser.churchId);
+      if (church) {
+        localStorage.setItem('activeChurch', JSON.stringify(church));
+      }
       
       // Redirect based on role
       if (foundUser.role === 'admin') {

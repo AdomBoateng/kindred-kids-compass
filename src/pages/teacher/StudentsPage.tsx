@@ -34,11 +34,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
+import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
 import { Search, Plus, FileEdit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { StudentFormSheet } from "@/components/forms/StudentFormSheet";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,13 +48,13 @@ export default function StudentsPage() {
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const { toast } = useToast();
+  const { user } = useAuth();
   
-  // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClassId = "1";
-  const teacherClass = mockClasses.find(c => c.id === teacherClassId);
+  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const teacherClassId = teacherClass?.id || "";
   
   // Get all students in the teacher's class
-  const classStudents = getStudentsByClassId(teacherClassId);
+  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   const filteredStudents = classStudents.filter(student => {
     const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();

@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Trophy, Target, TrendingUp } from "lucide-react";
-import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
+import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
+import { useAuth } from "@/context/AuthContext";
 
 // Mock detailed performance data
 const mockDetailedPerformance = [
@@ -83,13 +84,14 @@ const mockDetailedPerformance = [
 ];
 
 export default function PerformanceDetailsPage() {
+  const { user } = useAuth();
   const { id } = useParams();
   const [selectedRecord, setSelectedRecord] = useState(id || "1");
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClassId = "1";
-  const teacherClass = mockClasses.find(c => c.id === teacherClassId);
-  const classStudents = getStudentsByClassId(teacherClassId);
+  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const teacherClassId = teacherClass?.id || "";
+  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   // Get performance record based on selected ID
   const performanceRecord = mockDetailedPerformance.find(p => p.id === selectedRecord) || mockDetailedPerformance[0];

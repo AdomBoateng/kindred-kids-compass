@@ -12,7 +12,7 @@
 
 1. Create a Supabase project and enable Email auth provider.
 2. Run SQL in `backend/supabase/schema.sql`.
-3. Insert one church, then create an admin in Auth and `profiles`.
+3. Insert one church, then create an admin in Auth and `users`.
 4. Confirm bucket `student-avatars` exists (schema SQL creates it).
 5. Confirm `pg_cron` scheduled job exists for daily birthday notifications.
 
@@ -22,7 +22,7 @@ insert into churches(name, branch_name, location)
 values ('Kindred Kids', 'Central', 'Accra')
 returning id;
 
-insert into profiles(id, full_name, email, role, church_id)
+insert into users(id, full_name, email, role, church_id)
 values ('<auth_user_uuid>', 'Main Admin', 'admin@example.com', 'admin', '<church_uuid>');
 ```
 
@@ -42,8 +42,8 @@ uvicorn app.main:app --reload --port 8000
 - `POST /api/v1/auth/signup`
 
 ### Signup behavior
-- `role=admin`: creates a new church branch + admin profile.
-- `role=teacher`: creates teacher profile for an existing `church_id`.
+- `role=admin`: creates a new church branch + admin user record.
+- `role=teacher`: creates teacher user record for an existing `church_id`.
 
 ## 4) Endpoints mapped to frontend pages/modules
 

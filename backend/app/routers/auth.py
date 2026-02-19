@@ -12,7 +12,7 @@ async def login(payload: LoginRequest):
     if not auth.session or not auth.user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    profile = supabase_admin.table("profiles").select("role, church_id").eq("id", auth.user.id).single().execute()
+    profile = supabase_admin.table("users").select("role, church_id").eq("id", auth.user.id).single().execute()
     if not profile.data:
         raise HTTPException(status_code=403, detail="Profile missing")
 
@@ -50,7 +50,7 @@ async def signup(payload: SignupRequest):
     if not auth.user:
         raise HTTPException(status_code=400, detail="Unable to create user")
 
-    supabase_admin.table("profiles").insert(
+    supabase_admin.table("users").insert(
         {
             "id": auth.user.id,
             "full_name": payload.full_name,

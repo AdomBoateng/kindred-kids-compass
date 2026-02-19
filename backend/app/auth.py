@@ -72,7 +72,7 @@ async def get_current_profile(token_claims: dict[str, Any] = Depends(verify_supa
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing subject")
 
     profile_res = (
-        supabase_admin.table("profiles")
+        supabase_admin.table("users")
         .select("id, full_name, email, role, church_id")
         .eq("id", user_id)
         .single()

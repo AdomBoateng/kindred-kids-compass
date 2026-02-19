@@ -17,8 +17,6 @@ function getActiveChurchFromStorage(churchId?: string): Church | undefined {
   }
 }
 
-import { getChurchById, getClassesByChurchId, getStudentsByChurchId, getUsersByChurchId } from "@/lib/mock-data";
-
 export function useChurchScope() {
   const { user } = useAuth();
 
@@ -28,7 +26,6 @@ export function useChurchScope() {
     return {
       churchId,
       church: getChurchById(churchId) || getActiveChurchFromStorage(churchId),
-      church: getChurchById(churchId),
       users: getUsersByChurchId(churchId),
       classes: getClassesByChurchId(churchId),
       students: getStudentsByChurchId(churchId),

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import logo from "../assets/logo.png";
+import { containsUnsafeInput, isValidEmail, sanitizeText } from "@/lib/security";
 
 interface RegisteredAdminCredential {
   id: string;
@@ -49,10 +50,46 @@ export default function SignupPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!branchName.trim()) {
+    const sanitizedName = sanitizeText(name);
+    const sanitizedBranch = sanitizeText(branchName);
+    const sanitizedLocation = sanitizeText(location);
+    const sanitizedRegion = sanitizeText(region);
+    const sanitizedDistrict = sanitizeText(district);
+    const sanitizedArea = sanitizeText(area);
+    const normalizedEmail = sanitizeText(email, 254).toLowerCase();
+
+    const allInputs = [sanitizedName, normalizedEmail, sanitizedBranch, sanitizedLocation, sanitizedRegion, sanitizedDistrict, sanitizedArea];
+    if (allInputs.some(containsUnsafeInput)) {
+      toast({
+        title: "Invalid input",
+        description: "Detected potentially unsafe HTML/script content in one or more fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      toast({
+        title: "Invalid email",
+        description: "Please provide a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!sanitizedBranch) {
       toast({
         title: "Branch required",
         description: "Please enter the church branch name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 8) {
+      toast({
+        title: "Weak password",
+        description: "Password must be at least 8 characters.",
         variant: "destructive",
       });
       return;
@@ -71,7 +108,6 @@ export default function SignupPage() {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     const existingAdmins = getRegisteredAdmins();
-    const normalizedEmail = email.toLowerCase();
 
     const alreadyExists = existingAdmins.some((admin) => admin.email.toLowerCase() === normalizedEmail);
     if (alreadyExists) {
@@ -88,22 +124,22 @@ export default function SignupPage() {
 
     const newAdmin: RegisteredAdminCredential = {
       id: `custom-admin-${Date.now()}`,
-      name,
+      name: sanitizedName,
       email: normalizedEmail,
       password,
       churchId,
-      branchName,
-      location,
-      region,
-      district,
-      area,
+      branchName: sanitizedBranch,
+      location: sanitizedLocation,
+      region: sanitizedRegion,
+      district: sanitizedDistrict,
+      area: sanitizedArea,
     };
 
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([...existingAdmins, newAdmin]));
 
     toast({
       title: "Admin representative enrolled",
-      description: `${name} has been assigned to ${branchName}.`,
+      description: `${sanitizedName} has been assigned to ${sanitizedBranch}.`,
     });
 
     setIsSaving(false);
@@ -143,47 +179,49 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Input id="name" maxLength={120} value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input id="email" maxLength={254} autoComplete="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="branch">Church Branch Name</Label>
-                <Input id="branch" value={branchName} onChange={(e) => setBranchName(e.target.value)} required />
+                <Input id="branch" maxLength={120} value={branchName} onChange={(e) => setBranchName(e.target.value)} required />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="location">Location</Label>
-                  <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+                  <Input id="location" maxLength={120} value={location} onChange={(e) => setLocation(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="region">Region</Label>
-                  <Input id="region" value={region} onChange={(e) => setRegion(e.target.value)} required />
+                  <Input id="region" maxLength={120} value={region} onChange={(e) => setRegion(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="district">District</Label>
-                  <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} required />
+                  <Input id="district" maxLength={120} value={district} onChange={(e) => setDistrict(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="area">Area</Label>
-                  <Input id="area" value={area} onChange={(e) => setArea(e.target.value)} required />
+                  <Input id="area" maxLength={120} value={area} onChange={(e) => setArea(e.target.value)} required />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  <Input id="password" maxLength={128} autoComplete="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <Input
                     id="confirmPassword"
+                    maxLength={128}
+                    autoComplete="new-password"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

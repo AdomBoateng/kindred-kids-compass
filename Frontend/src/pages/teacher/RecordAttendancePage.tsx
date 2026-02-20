@@ -24,6 +24,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 export default function RecordAttendancePage() {
   const { user } = useAuth();
@@ -43,15 +44,28 @@ export default function RecordAttendancePage() {
     }));
   };
   
-  const handleSubmit = () => {
-    // In a real app, this would save to the database
-    console.log('Attendance saved for:', format(date, 'yyyy-MM-dd'));
-    console.log('Attendance data:', attendance);
-    
-    toast({
-      title: "Attendance Recorded",
-      description: `Successfully saved attendance for ${format(date, 'MMMM d, yyyy')}`,
-    });
+  const handleSubmit = async () => {
+    try {
+      await api.recordAttendance({
+        class_id: teacherClassId,
+        session_date: format(date, 'yyyy-MM-dd'),
+        students: classStudents.map((student) => ({
+          student_id: student.id,
+          present: attendance[student.id] ?? false,
+        })),
+      });
+
+      toast({
+        title: "Attendance Recorded",
+        description: `Successfully saved attendance for ${format(date, 'MMMM d, yyyy')}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Unable to save attendance",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   const presentCount = Object.values(attendance).filter(v => v).length;

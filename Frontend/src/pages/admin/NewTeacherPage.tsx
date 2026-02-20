@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, RefreshCw, X, Check } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function NewTeacherPage() {
   const navigate = useNavigate();
@@ -110,7 +111,7 @@ export default function NewTeacherPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -122,15 +123,26 @@ export default function NewTeacherPage() {
       return;
     }
 
-    // In a real app, we would send this data to an API
-    console.log("New teacher data:", formData);
+    try {
+      await api.createTeacher({
+        full_name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+      });
 
-    toast({
-      title: "Teacher added successfully",
-      description: `${formData.name} has been added as a new teacher.`
-    });
+      toast({
+        title: "Teacher added successfully",
+        description: `${formData.name} has been added as a new teacher.`
+      });
 
-    navigate("/admin/teachers");
+      navigate("/admin/teachers");
+    } catch (error) {
+      toast({
+        title: "Unable to add teacher",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getChurchById, mockUsers } from '@/lib/mock-data';
 import { api } from '@/lib/api';
 import { Church, User } from '@/types';
 import { containsUnsafeInput, isValidEmail, sanitizeText } from '@/lib/security';
@@ -13,30 +12,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface RegisteredAdminCredential {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  churchId: string;
-  branchName: string;
-  location: string;
-  region: string;
-  district: string;
-  area: string;
-}
-
-const REGISTERED_ADMINS_STORAGE_KEY = 'registeredAdmins';
 const ACCESS_TOKEN_STORAGE_KEY = 'accessToken';
-
-const demoCredentials: Record<string, string> = {
-  'admin.central@church.org': 'admin123',
-  'admin.north@church.org': 'admin123',
-  'teacher.central@church.org': 'teacher123',
-  'michael.central@church.org': 'teacher123',
-  'teacher.north@church.org': 'teacher123',
-};
 
 const safeParseUser = (): User | null => {
   const savedUser = localStorage.getItem('user');
@@ -58,35 +34,6 @@ const safeParseUser = (): User | null => {
   }
 };
 
-const getRegisteredAdmins = (): RegisteredAdminCredential[] => {
-  const rawAdmins = localStorage.getItem(REGISTERED_ADMINS_STORAGE_KEY);
-  if (!rawAdmins) return [];
-
-  try {
-    const parsed = JSON.parse(rawAdmins) as RegisteredAdminCredential[];
-
-    return parsed.filter((admin) => {
-      if (!admin?.id || !admin?.email || !admin?.password || !admin?.churchId) return false;
-      if (!isValidEmail(admin.email)) return false;
-
-      const values = [admin.name, admin.email, admin.churchId, admin.branchName, admin.location, admin.region, admin.district, admin.area];
-      return !values.some((value) => containsUnsafeInput(value || ''));
-    }).map((admin) => ({
-      ...admin,
-      name: sanitizeText(admin.name),
-      email: sanitizeText(admin.email, 254).toLowerCase(),
-      churchId: sanitizeText(admin.churchId, 120),
-      branchName: sanitizeText(admin.branchName),
-      location: sanitizeText(admin.location),
-      region: sanitizeText(admin.region),
-      district: sanitizeText(admin.district),
-      area: sanitizeText(admin.area),
-    }));
-  } catch {
-    return [];
-  }
-};
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
@@ -103,88 +50,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Invalid credentials');
       }
 
-      try {
-        const authResponse = await api.login(normalizedEmail, safePassword);
-        const userFromApi: User = {
-          id: authResponse.user_id,
-          name: normalizedEmail,
-          email: normalizedEmail,
-          role: authResponse.role,
-          churchId: authResponse.church_id,
-        };
+      const authResponse = await api.login(normalizedEmail, safePassword);
+      localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, authResponse.access_token);
 
-        setUser(userFromApi);
-        localStorage.setItem('user', JSON.stringify(userFromApi));
-        localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, authResponse.access_token);
+      const profile = await api.getMe();
+      const userFromApi: User = {
+        id: profile.id,
+        name: profile.full_name || normalizedEmail,
+        email: profile.email,
+        role: profile.role,
+        churchId: profile.church_id,
+      };
 
-        const church = await api.getChurch(authResponse.access_token);
-        const activeChurch: Church = {
-          id: church.id,
-          name: church.name,
-          branchName: church.branch_name,
-          location: church.location,
-          region: church.region,
-          district: church.district,
-          area: church.area,
-        };
-        localStorage.setItem('activeChurch', JSON.stringify(activeChurch));
+      setUser(userFromApi);
+      localStorage.setItem('user', JSON.stringify(userFromApi));
 
-        navigate(authResponse.role === 'admin' ? '/admin/dashboard' : '/teacher/dashboard');
-        return;
-      } catch (apiError) {
-        console.warn('API login unavailable, falling back to local demo credentials.', apiError);
-      }
+      const church = await api.getChurch();
+      const activeChurch: Church = {
+        id: church.id,
+        name: church.name,
+        branchName: church.branch_name,
+        location: church.location,
+        region: church.region,
+        district: church.district,
+        area: church.area,
+      };
+      localStorage.setItem('activeChurch', JSON.stringify(activeChurch));
 
-      const expectedPassword = demoCredentials[normalizedEmail];
-      let foundUser = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
-
-      if (!foundUser || !expectedPassword || safePassword !== expectedPassword) {
-        const registeredAdmins = getRegisteredAdmins();
-        const registeredAdmin = registeredAdmins.find(
-          (admin) => admin.email.toLowerCase() === normalizedEmail && admin.password === safePassword,
-        );
-
-        if (!registeredAdmin) {
-          throw new Error('Invalid credentials');
-        }
-
-        foundUser = {
-          id: registeredAdmin.id,
-          name: registeredAdmin.name,
-          email: registeredAdmin.email,
-          role: 'admin',
-          churchId: registeredAdmin.churchId,
-        };
-      }
-
-      setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
-
-      const church = getChurchById(foundUser.churchId);
-      if (church) {
-        localStorage.setItem('activeChurch', JSON.stringify(church));
-      } else {
-        const registeredAdmins = getRegisteredAdmins();
-        const registeredAdmin = registeredAdmins.find((admin) => admin.id === foundUser.id);
-        if (registeredAdmin) {
-          const activeChurch: Church = {
-            id: registeredAdmin.churchId,
-            name: 'Kindred Kids',
-            branchName: registeredAdmin.branchName,
-            location: registeredAdmin.location,
-            region: registeredAdmin.region,
-            district: registeredAdmin.district,
-            area: registeredAdmin.area,
-          };
-          localStorage.setItem('activeChurch', JSON.stringify(activeChurch));
-        }
-      }
-
-      if (foundUser.role === 'admin') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/teacher/dashboard');
-      }
+      navigate(profile.role === 'admin' ? '/admin/dashboard' : '/teacher/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -197,6 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    localStorage.removeItem('runtimeScopeData');
     navigate('/login');
   };
 

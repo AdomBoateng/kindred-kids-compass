@@ -1,19 +1,19 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class TeacherCreate(BaseModel):
     full_name: str
-    email: EmailStr
+    email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     phone: Optional[str] = None
 
 
 class TeacherOut(BaseModel):
     id: str
     full_name: str
-    email: EmailStr
+    email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     role: str
     church_id: str
 

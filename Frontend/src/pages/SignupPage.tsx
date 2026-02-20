@@ -7,21 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import logo from "../assets/logo.png";
 import { containsUnsafeInput, isValidEmail, sanitizeText } from "@/lib/security";
-
-interface RegisteredAdminCredential {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  churchId: string;
-  branchName: string;
-  location: string;
-  region: string;
-  district: string;
-  area: string;
-}
-
-const LOCAL_STORAGE_KEY = "registeredAdmins";
+import { api } from "@/lib/api";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -35,17 +21,6 @@ export default function SignupPage() {
   const [district, setDistrict] = useState("");
   const [area, setArea] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
-  const getRegisteredAdmins = (): RegisteredAdminCredential[] => {
-    const rawAdmins = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!rawAdmins) return [];
-
-    try {
-      return JSON.parse(rawAdmins) as RegisteredAdminCredential[];
-    } catch {
-      return [];
-    }
-  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -105,45 +80,35 @@ export default function SignupPage() {
     }
 
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const existingAdmins = getRegisteredAdmins();
+    try {
+      await api.signup({
+        full_name: sanitizedName,
+        email: normalizedEmail,
+        password,
+        role: "admin",
+        branch_name: sanitizedBranch,
+        location: sanitizedLocation,
+        region: sanitizedRegion,
+        district: sanitizedDistrict,
+        area: sanitizedArea,
+      });
 
-    const alreadyExists = existingAdmins.some((admin) => admin.email.toLowerCase() === normalizedEmail);
-    if (alreadyExists) {
-      setIsSaving(false);
       toast({
-        title: "Email already enrolled",
-        description: "This email has already been used for an admin representative.",
+        title: "Admin representative enrolled",
+        description: `${sanitizedName} has been assigned to ${sanitizedBranch}.`,
+      });
+
+      navigate("/login");
+    } catch (error) {
+      toast({
+        title: "Enrollment failed",
+        description: error instanceof Error ? error.message : "Unable to enroll admin representative.",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsSaving(false);
     }
-
-    const churchId = `church-custom-${Date.now()}`;
-
-    const newAdmin: RegisteredAdminCredential = {
-      id: `custom-admin-${Date.now()}`,
-      name: sanitizedName,
-      email: normalizedEmail,
-      password,
-      churchId,
-      branchName: sanitizedBranch,
-      location: sanitizedLocation,
-      region: sanitizedRegion,
-      district: sanitizedDistrict,
-      area: sanitizedArea,
-    };
-
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([...existingAdmins, newAdmin]));
-
-    toast({
-      title: "Admin representative enrolled",
-      description: `${sanitizedName} has been assigned to ${sanitizedBranch}.`,
-    });
-
-    setIsSaving(false);
-    navigate("/login");
   };
 
   return (

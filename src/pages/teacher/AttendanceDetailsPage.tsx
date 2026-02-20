@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/select";
 import { format, subDays } from "date-fns";
 import { ArrowLeft, Calendar, Users, Check, X } from "lucide-react";
-import { getStudentsByClassId, mockClasses } from "@/lib/mock-data";
+import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
+import { useAuth } from "@/context/AuthContext";
 
 // Mock detailed attendance data
 const mockDetailedAttendance = [
@@ -74,13 +75,14 @@ const mockDetailedAttendance = [
 ];
 
 export default function AttendanceDetailsPage() {
+  const { user } = useAuth();
   const { date } = useParams();
   const [selectedDate, setSelectedDate] = useState("latest");
   
   // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClassId = "1";
-  const teacherClass = mockClasses.find(c => c.id === teacherClassId);
-  const classStudents = getStudentsByClassId(teacherClassId);
+  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const teacherClassId = teacherClass?.id || "";
+  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   // Get attendance record based on selected date
   const attendanceRecord = selectedDate === "latest" 

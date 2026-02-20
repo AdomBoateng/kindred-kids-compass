@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +63,7 @@ export default function LoginPage() {
           <CardHeader>
             <CardTitle>Welcome Back</CardTitle>
             <CardDescription>
-              Sign in to your account to continue
+              Sign in to your church branch account
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -72,9 +73,11 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@church.org or teacher@church.org"
+                  placeholder="admin.central@church.org"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  maxLength={254}
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -86,6 +89,8 @@ export default function LoginPage() {
                   placeholder="Use admin123 or teacher123"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  maxLength={128}
+                  autoComplete="current-password"
                   required
                 />
               </div>
@@ -94,15 +99,13 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          {/* <CardFooter className="flex flex-col items-center">
-            <p className="text-sm text-muted-foreground">
-              Demo credentials:
-            </p>
-            <div className="text-xs text-muted-foreground space-y-1 mt-1">
-              <p>Admin: admin@church.org / admin123</p>
-              <p>Teacher: teacher@church.org / teacher123</p>
-            </div>
-          </CardFooter> */}
+          <CardFooter className="flex flex-col items-start text-xs text-muted-foreground gap-1">
+            <p>Central Admin: admin.central@church.org / admin123</p>
+            <p>North Admin: admin.north@church.org / admin123</p>
+            <p>Central Teacher: teacher.central@church.org / teacher123</p>
+            <p>North Teacher: teacher.north@church.org / teacher123</p>
+            <p className="pt-2">Need a branch admin account? <Link to="/signup" className="text-primary hover:underline">Sign up</Link></p>
+          </CardFooter>
         </Card>
       </div>
     </div>

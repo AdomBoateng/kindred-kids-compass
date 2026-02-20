@@ -1,19 +1,9 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getChurchById, mockUsers } from '@/lib/mock-data';
+import { Church, User } from '@/types';
+import { containsUnsafeInput, isValidEmail, sanitizeText } from '@/lib/security';
 
-// Define User type
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'teacher';
-  avatar?: string;
-  phone?: string;
-  bio?: string;
-}
-
-// Define AuthContext interface
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -21,74 +11,143 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-// Create Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const mockUsers = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@kindredkids.church',
-    role: 'admin' as const,
-    avatar: 'https://i.pravatar.cc/150?img=68',
-    phone: '(555) 123-4567',
-    bio: 'Church administrator with a passion for helping children grow in their faith.'
-  },
-  {
-    id: '2',
-    name: 'Teacher User',
-    email: 'teacher@kindredkids.church',
-    role: 'teacher' as const,
-    avatar: 'https://i.pravatar.cc/150?img=32',
-    phone: '(555) 987-6543',
-    bio: 'Dedicated Sunday school teacher with 5 years of experience teaching preschool children.'
-  }
-];
+interface RegisteredAdminCredential {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  churchId: string;
+  branchName: string;
+  location: string;
+  region: string;
+  district: string;
+  area: string;
+}
 
-// Create AuthProvider component
+const REGISTERED_ADMINS_STORAGE_KEY = 'registeredAdmins';
+
+const demoCredentials: Record<string, string> = {
+  'admin.central@church.org': 'admin123',
+  'admin.north@church.org': 'admin123',
+  'teacher.central@church.org': 'teacher123',
+  'michael.central@church.org': 'teacher123',
+  'teacher.north@church.org': 'teacher123',
+};
+
+const safeParseUser = (): User | null => {
+  const savedUser = localStorage.getItem('user');
+  if (!savedUser) return null;
+
+  try {
+    const parsedUser = JSON.parse(savedUser) as User;
+    if (!parsedUser?.id || !parsedUser?.email || !parsedUser?.role || !parsedUser?.churchId) return null;
+    if (containsUnsafeInput(parsedUser.name || '') || !isValidEmail(parsedUser.email)) return null;
+
+    return {
+      ...parsedUser,
+      name: sanitizeText(parsedUser.name),
+      email: sanitizeText(parsedUser.email, 254).toLowerCase(),
+      churchId: sanitizeText(parsedUser.churchId, 120),
+    };
+  } catch {
+    return null;
+  }
+};
+
+const getRegisteredAdmins = (): RegisteredAdminCredential[] => {
+  const rawAdmins = localStorage.getItem(REGISTERED_ADMINS_STORAGE_KEY);
+  if (!rawAdmins) return [];
+
+  try {
+    const parsed = JSON.parse(rawAdmins) as RegisteredAdminCredential[];
+
+    return parsed.filter((admin) => {
+      if (!admin?.id || !admin?.email || !admin?.password || !admin?.churchId) return false;
+      if (!isValidEmail(admin.email)) return false;
+
+      const values = [admin.name, admin.email, admin.churchId, admin.branchName, admin.location, admin.region, admin.district, admin.area];
+      return !values.some((value) => containsUnsafeInput(value || ''));
+    }).map((admin) => ({
+      ...admin,
+      name: sanitizeText(admin.name),
+      email: sanitizeText(admin.email, 254).toLowerCase(),
+      churchId: sanitizeText(admin.churchId, 120),
+      branchName: sanitizeText(admin.branchName),
+      location: sanitizeText(admin.location),
+      region: sanitizeText(admin.region),
+      district: sanitizeText(admin.district),
+      area: sanitizeText(admin.area),
+    }));
+  } catch {
+    return [];
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
-  
-  // Get user from localStorage or set to null
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null; // Changed default to null instead of mockUsers[1]
-  });
-  
+
+  const [user, setUser] = useState<User | null>(() => safeParseUser());
   const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Fix login to work with demo credentials
-      let foundUser = null;
-      
-      // Check if using admin credentials from LoginPage
-      if (email === 'admin@church.org' && password === 'admin123') {
-        foundUser = mockUsers.find(u => u.role === 'admin');
-      } 
-      // Check if using teacher credentials from LoginPage
-      else if (email === 'teacher@church.org' && password === 'teacher123') {
-        foundUser = mockUsers.find(u => u.role === 'teacher');
-      }
-      // Also allow direct login with mockUser emails
-      else {
-        foundUser = mockUsers.find(u => u.email === email);
-      }
-      
-      if (!foundUser) {
+
+      const normalizedEmail = sanitizeText(email, 254).toLowerCase();
+      const safePassword = sanitizeText(password, 128);
+
+      if (!isValidEmail(normalizedEmail) || containsUnsafeInput(normalizedEmail) || containsUnsafeInput(safePassword)) {
         throw new Error('Invalid credentials');
       }
-      
-      // Set user in state and localStorage
+
+      const expectedPassword = demoCredentials[normalizedEmail];
+      let foundUser = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
+
+      if (!foundUser || !expectedPassword || safePassword !== expectedPassword) {
+        const registeredAdmins = getRegisteredAdmins();
+        const registeredAdmin = registeredAdmins.find(
+          (admin) => admin.email.toLowerCase() === normalizedEmail && admin.password === safePassword,
+        );
+
+        if (!registeredAdmin) {
+          throw new Error('Invalid credentials');
+        }
+
+        foundUser = {
+          id: registeredAdmin.id,
+          name: registeredAdmin.name,
+          email: registeredAdmin.email,
+          role: 'admin',
+          churchId: registeredAdmin.churchId,
+        };
+      }
+
       setUser(foundUser);
       localStorage.setItem('user', JSON.stringify(foundUser));
-      
-      // Redirect based on role
+
+      const church = getChurchById(foundUser.churchId);
+      if (church) {
+        localStorage.setItem('activeChurch', JSON.stringify(church));
+      } else {
+        const registeredAdmins = getRegisteredAdmins();
+        const registeredAdmin = registeredAdmins.find((admin) => admin.id === foundUser.id);
+        if (registeredAdmin) {
+          const activeChurch: Church = {
+            id: registeredAdmin.churchId,
+            name: 'Kindred Kids',
+            branchName: registeredAdmin.branchName,
+            location: registeredAdmin.location,
+            region: registeredAdmin.region,
+            district: registeredAdmin.district,
+            area: registeredAdmin.area,
+          };
+          localStorage.setItem('activeChurch', JSON.stringify(activeChurch));
+        }
+      }
+
       if (foundUser.role === 'admin') {
         navigate('/admin/dashboard');
       } else {
@@ -115,7 +174,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook for using auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

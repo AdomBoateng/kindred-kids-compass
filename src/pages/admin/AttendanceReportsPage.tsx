@@ -145,7 +145,7 @@ export default function AttendanceReportsPage() {
                         mode="range"
                         defaultMonth={dateRange.from}
                         selected={dateRange}
-                        onSelect={setDateRange as any}
+                        onSelect={(range) => setDateRange(range ?? { from: new Date(), to: new Date() })}
                         numberOfMonths={2}
                         className="pointer-events-auto"
                       />

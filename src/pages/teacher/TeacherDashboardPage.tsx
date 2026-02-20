@@ -5,8 +5,7 @@ import { BirthdayList } from "@/components/birthdays/BirthdayList";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
 import { useAuth } from "@/context/AuthContext";
 import { 
-  mockStudents, 
-  mockClasses, 
+  getPrimaryClassForTeacher,
   getStudentsByClassId 
 } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
@@ -26,12 +25,11 @@ const teacherAttendanceData = [
 export default function TeacherDashboardPage() {
   const { user } = useAuth();
   
-  // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClassId = "1";
-  const teacherClass = mockClasses.find(c => c.id === teacherClassId);
+  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const teacherClassId = teacherClass?.id || "";
   
   // Get students in the teacher's class
-  const classStudents = getStudentsByClassId(teacherClassId);
+  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   // Count students with birthdays in next 14 days
   const birthdayStudents = classStudents.filter(student => {

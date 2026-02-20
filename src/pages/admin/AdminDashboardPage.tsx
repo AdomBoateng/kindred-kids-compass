@@ -5,11 +5,12 @@ import { BirthdayList } from "@/components/birthdays/BirthdayList";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
 import { PerformanceChart } from "@/components/charts/PerformanceChart";
 import { useAuth } from "@/context/AuthContext";
-import { mockStudents, mockClasses, mockUsers } from "@/lib/mock-data";
+import { mockStudents } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { UserPlus, Users, FileChartLine, UserCheck } from "lucide-react";
 import logo from "@/assets/logo.png"; // Add this import (adjust if not using alias)
+import { useChurchScope } from "@/hooks/use-church-scope";
 
 // Sample data for attendance chart
 const attendanceData = [
@@ -32,12 +33,12 @@ const performanceData = [
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
+  const { church, teachers, classes, students } = useChurchScope();
   
-  // Count teachers (excluding admin)
-  const teacherCount = mockUsers.filter(u => u.role === "teacher").length;
+  const teacherCount = teachers.length;
   
   // Count students with birthdays in next 30 days
-  const birthdayStudents = mockStudents.filter(student => {
+  const birthdayStudents = students.filter(student => {
     const birthDate = new Date(student.dateOfBirth);
     const today = new Date();
     const birthDateThisYear = new Date(
@@ -77,20 +78,20 @@ export default function AdminDashboardPage() {
       <div className="relative z-10">
         <PageHeader 
           title="Admin Dashboard" 
-          description={`Welcome back, ${user?.name || 'Admin'}`}
+          description={`Welcome back, ${user?.name || 'Admin'} • ${church?.branchName || 'Your Church'}`}
         />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <StatCard 
             title="Total Students" 
-            value={mockStudents.length} 
+            value={students.length} 
             trend={5}
             trendLabel="vs. last month"
             variant="purple"
           />
           <StatCard 
             title="Total Classes" 
-            value={mockClasses.length}
+            value={classes.length}
             variant="outline" 
           />
           <StatCard 

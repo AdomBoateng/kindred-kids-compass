@@ -1,19 +1,22 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     password: str
 
 
 class SignupRequest(BaseModel):
     full_name: str
-    email: EmailStr
+    email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     password: str
     role: str
     church_id: str | None = None
     branch_name: str | None = None
     location: str | None = None
+    region: str | None = None
+    district: str | None = None
+    area: str | None = None
 
 
 class AuthResponse(BaseModel):

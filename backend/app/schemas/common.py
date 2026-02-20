@@ -1,11 +1,11 @@
 from datetime import date
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field
 
 
 class ProfileOut(BaseModel):
     id: str
     full_name: str
-    email: EmailStr
+    email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     role: str
     church_id: str
 

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getChurchById, mockUsers } from '@/lib/mock-data';
+import { api } from '@/lib/api';
 import { Church, User } from '@/types';
 import { containsUnsafeInput, isValidEmail, sanitizeText } from '@/lib/security';
 
@@ -27,6 +28,7 @@ interface RegisteredAdminCredential {
 }
 
 const REGISTERED_ADMINS_STORAGE_KEY = 'registeredAdmins';
+const ACCESS_TOKEN_STORAGE_KEY = 'accessToken';
 
 const demoCredentials: Record<string, string> = {
   'admin.central@church.org': 'admin123',
@@ -94,13 +96,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       const normalizedEmail = sanitizeText(email, 254).toLowerCase();
       const safePassword = sanitizeText(password, 128);
 
       if (!isValidEmail(normalizedEmail) || containsUnsafeInput(normalizedEmail) || containsUnsafeInput(safePassword)) {
         throw new Error('Invalid credentials');
+      }
+
+      try {
+        const authResponse = await api.login(normalizedEmail, safePassword);
+        const userFromApi: User = {
+          id: authResponse.user_id,
+          name: normalizedEmail,
+          email: normalizedEmail,
+          role: authResponse.role,
+          churchId: authResponse.church_id,
+        };
+
+        setUser(userFromApi);
+        localStorage.setItem('user', JSON.stringify(userFromApi));
+        localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, authResponse.access_token);
+
+        const church = await api.getChurch(authResponse.access_token);
+        const activeChurch: Church = {
+          id: church.id,
+          name: church.name,
+          branchName: church.branch_name,
+          location: church.location,
+          region: church.region,
+          district: church.district,
+          area: church.area,
+        };
+        localStorage.setItem('activeChurch', JSON.stringify(activeChurch));
+
+        navigate(authResponse.role === 'admin' ? '/admin/dashboard' : '/teacher/dashboard');
+        return;
+      } catch (apiError) {
+        console.warn('API login unavailable, falling back to local demo credentials.', apiError);
       }
 
       const expectedPassword = demoCredentials[normalizedEmail];
@@ -164,6 +196,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     navigate('/login');
   };
 

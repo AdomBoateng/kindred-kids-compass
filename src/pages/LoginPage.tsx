@@ -76,6 +76,8 @@ export default function LoginPage() {
                   placeholder="admin.central@church.org"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  maxLength={254}
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -87,6 +89,8 @@ export default function LoginPage() {
                   placeholder="Use admin123 or teacher123"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  maxLength={128}
+                  autoComplete="current-password"
                   required
                 />
               </div>

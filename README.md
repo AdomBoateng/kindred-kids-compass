@@ -71,3 +71,13 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Backend API (FastAPI + Supabase)
+
+A production-ready backend scaffold was added in `backend/` with:
+- Supabase JWT auth verification
+- Role-based authorization for admin/teacher
+- Supabase Postgres schema + RPCs for birthdays and analytics
+- Supabase Storage integration for student avatar uploads
+
+See `backend/README.md` for setup steps and endpoint mapping.

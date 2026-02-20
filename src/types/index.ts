@@ -72,9 +72,7 @@ export interface Teacher extends User {
   classIds: string[];
 }
 
-export interface Admin extends User {
-  // Admin specific fields if needed
-}
+export type Admin = User;
 
 // Dashboard types
 export interface StudentStat {

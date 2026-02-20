@@ -7,7 +7,12 @@ export function sanitizeText(value: string, maxLength = MAX_TEXT_LENGTH): string
   return value
     .replace(/<[^>]*>/g, "")
     .replace(/[<>]/g, "")
-    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .split("")
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code >= 32 && code !== 127;
+    })
+    .join("")
     .trim()
     .slice(0, maxLength);
 }

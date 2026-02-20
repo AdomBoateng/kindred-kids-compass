@@ -38,7 +38,7 @@ async def signup(payload: SignupRequest):
             raise HTTPException(status_code=400, detail="branch_name and location are required for admin signup")
         church = (
             supabase_admin.table("churches")
-            .insert({"name": "Kindred Kids", "branch_name": payload.branch_name, "location": payload.location})
+            .insert({"name": "Kindred Kids", "branch_name": payload.branch_name, "location": payload.location, "region": payload.region, "district": payload.district, "area": payload.area})
             .execute()
         )
         church_id = church.data[0]["id"]

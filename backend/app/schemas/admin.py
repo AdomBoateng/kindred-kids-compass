@@ -1,19 +1,22 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class TeacherCreate(BaseModel):
     full_name: str
-    email: EmailStr
+    email: str
     phone: Optional[str] = None
+    password: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class TeacherOut(BaseModel):
     id: str
     full_name: str
-    email: EmailStr
+    email: str
     role: str
     church_id: str
 
@@ -42,6 +45,8 @@ class StudentCreate(BaseModel):
     allergies: Optional[str] = None
     notes: Optional[str] = None
     gender: Optional[str] = None
+    join_date: Optional[date] = None
+    avatar_url: Optional[str] = None
 
 
 class StudentOut(BaseModel):

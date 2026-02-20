@@ -12,13 +12,7 @@ async def dashboard(profile=Depends(require_role("admin"))):
     church_id = profile["church_id"]
     students = supabase_admin.table("students").select("id", count="exact").eq("church_id", church_id).execute()
     classes = supabase_admin.table("classes").select("id", count="exact").eq("church_id", church_id).execute()
-    teachers = (
-        supabase_admin.table("users")
-        .select("id", count="exact")
-        .eq("church_id", church_id)
-        .eq("role", "teacher")
-        .execute()
-    )
+    teachers = supabase_admin.table("users").select("id", count="exact").eq("church_id", church_id).eq("role", "teacher").execute()
     return {"students": students.count or 0, "classes": classes.count or 0, "teachers": teachers.count or 0}
 
 
@@ -38,7 +32,7 @@ async def update_church(payload: dict, profile=Depends(require_role("admin"))):
 async def list_teachers(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("users")
-        .select("id, full_name, email, role, church_id")
+        .select("id, full_name, email, phone, role, church_id, bio, avatar_url")
         .eq("church_id", profile["church_id"])
         .eq("role", "teacher")
         .execute()
@@ -48,13 +42,15 @@ async def list_teachers(profile=Depends(require_role("admin"))):
 
 @router.post("/teachers")
 async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("admin"))):
-    auth_res = supabase_admin.auth.admin.create_user(
-        {
-            "email": payload.email,
-            "email_confirm": True,
-            "user_metadata": {"full_name": payload.full_name, "role": "teacher", "church_id": profile["church_id"]},
-        }
-    )
+    auth_payload = {
+        "email": payload.email,
+        "email_confirm": True,
+        "user_metadata": {"full_name": payload.full_name, "role": "teacher", "church_id": profile["church_id"]},
+    }
+    if payload.password:
+        auth_payload["password"] = payload.password
+
+    auth_res = supabase_admin.auth.admin.create_user(auth_payload)
     if not auth_res.user:
         raise HTTPException(status_code=400, detail="Failed to create auth user")
 
@@ -67,6 +63,8 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
                 "email": payload.email,
                 "phone": payload.phone,
                 "role": "teacher",
+                "bio": payload.bio,
+                "avatar_url": payload.avatar_url,
                 "church_id": profile["church_id"],
             }
         )
@@ -128,7 +126,7 @@ async def assign_teacher(payload: TeacherClassAssign, profile=Depends(require_ro
 async def list_students(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("students")
-        .select("id, class_id, first_name, last_name, date_of_birth, guardian_name, guardian_contact, allergies, notes, gender, avatar_url")
+        .select("id, class_id, first_name, last_name, date_of_birth, guardian_name, guardian_contact, allergies, notes, gender, avatar_url, join_date")
         .eq("church_id", profile["church_id"])
         .order("first_name")
         .execute()
@@ -138,7 +136,7 @@ async def list_students(profile=Depends(require_role("admin"))):
 
 @router.post("/students")
 async def create_student(payload: StudentCreate, profile=Depends(require_role("admin"))):
-    body = payload.model_dump()
+    body = payload.model_dump(exclude_none=True)
     body["church_id"] = profile["church_id"]
     res = supabase_admin.table("students").insert(body).execute()
     return res.data[0]

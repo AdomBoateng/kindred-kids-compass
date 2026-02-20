@@ -91,3 +91,11 @@ uvicorn app.main:app --reload --port 8000
 Every request is logged as JSON with:
 - timestamp, level, logger, message
 - request_id, method, path, status_code, duration_ms
+
+
+## 7) Frontend field-to-table alignment
+- Login page: `email`, `password` -> Supabase Auth sign-in (`/auth/login`).
+- Signup page: `full_name`, `email`, `password`, `branch_name`, `location`, `region`, `district`, `area` -> `users` + `churches` (`/auth/signup`).
+- New Teacher page: `name/full_name`, `email`, `phone`, `password`, `bio`, `avatar` -> `users` + Auth user (`/admin/teachers`).
+- New Student / Student form: `first_name`, `last_name`, `date_of_birth`, `gender`, `guardian_name`, `guardian_contact`, `allergies`, `notes`, `avatar`, `join_date`, `class_id` -> `students` (`/admin/students`, `/storage/students/{id}/avatar`).
+- Create Class page: `name`, `age_group`, `description` -> `classes` (`/admin/classes`).

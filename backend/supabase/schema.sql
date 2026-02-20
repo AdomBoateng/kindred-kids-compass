@@ -23,6 +23,7 @@ create table if not exists users (
   email text unique not null,
   phone text,
   avatar_url text,
+  bio text,
   role app_role not null,
   church_id uuid not null references churches(id) on delete restrict,
   created_at timestamptz not null default now()
@@ -57,6 +58,7 @@ create table if not exists students (
   notes text,
   gender text,
   avatar_url text,
+  join_date date not null default current_date,
   created_at timestamptz not null default now()
 );
 
@@ -117,6 +119,12 @@ create table if not exists notifications (
   message text not null,
   created_at timestamptz not null default now()
 );
+
+-- Backward/upgrade compatibility for existing projects
+alter table users add column if not exists bio text;
+alter table users add column if not exists avatar_url text;
+alter table students add column if not exists join_date date not null default current_date;
+alter table students add column if not exists avatar_url text;
 
 -- Useful indexes
 create index if not exists idx_users_church_role on users(church_id, role);

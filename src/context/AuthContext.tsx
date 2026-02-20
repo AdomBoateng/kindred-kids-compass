@@ -1,10 +1,9 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getChurchById, mockUsers } from '@/lib/mock-data';
-import { User } from '@/types';
+import { Church, User } from '@/types';
+import { containsUnsafeInput, isValidEmail, sanitizeText } from '@/lib/security';
 
-// Define AuthContext interface
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -12,9 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-// Create Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 
 interface RegisteredAdminCredential {
   id: string;
@@ -39,44 +36,80 @@ const demoCredentials: Record<string, string> = {
   'teacher.north@church.org': 'teacher123',
 };
 
+const safeParseUser = (): User | null => {
+  const savedUser = localStorage.getItem('user');
+  if (!savedUser) return null;
+
+  try {
+    const parsedUser = JSON.parse(savedUser) as User;
+    if (!parsedUser?.id || !parsedUser?.email || !parsedUser?.role || !parsedUser?.churchId) return null;
+    if (containsUnsafeInput(parsedUser.name || '') || !isValidEmail(parsedUser.email)) return null;
+
+    return {
+      ...parsedUser,
+      name: sanitizeText(parsedUser.name),
+      email: sanitizeText(parsedUser.email, 254).toLowerCase(),
+      churchId: sanitizeText(parsedUser.churchId, 120),
+    };
+  } catch {
+    return null;
+  }
+};
 
 const getRegisteredAdmins = (): RegisteredAdminCredential[] => {
   const rawAdmins = localStorage.getItem(REGISTERED_ADMINS_STORAGE_KEY);
   if (!rawAdmins) return [];
 
   try {
-    return JSON.parse(rawAdmins) as RegisteredAdminCredential[];
+    const parsed = JSON.parse(rawAdmins) as RegisteredAdminCredential[];
+
+    return parsed.filter((admin) => {
+      if (!admin?.id || !admin?.email || !admin?.password || !admin?.churchId) return false;
+      if (!isValidEmail(admin.email)) return false;
+
+      const values = [admin.name, admin.email, admin.churchId, admin.branchName, admin.location, admin.region, admin.district, admin.area];
+      return !values.some((value) => containsUnsafeInput(value || ''));
+    }).map((admin) => ({
+      ...admin,
+      name: sanitizeText(admin.name),
+      email: sanitizeText(admin.email, 254).toLowerCase(),
+      churchId: sanitizeText(admin.churchId, 120),
+      branchName: sanitizeText(admin.branchName),
+      location: sanitizeText(admin.location),
+      region: sanitizeText(admin.region),
+      district: sanitizeText(admin.district),
+      area: sanitizeText(admin.area),
+    }));
   } catch {
     return [];
   }
 };
 
-// Create AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
-  
-  // Get user from localStorage or set to null
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null; // Changed default to null instead of mockUsers[1]
-  });
-  
+
+  const [user, setUser] = useState<User | null>(() => safeParseUser());
   const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const normalizedEmail = email.toLowerCase();
+
+      const normalizedEmail = sanitizeText(email, 254).toLowerCase();
+      const safePassword = sanitizeText(password, 128);
+
+      if (!isValidEmail(normalizedEmail) || containsUnsafeInput(normalizedEmail) || containsUnsafeInput(safePassword)) {
+        throw new Error('Invalid credentials');
+      }
+
       const expectedPassword = demoCredentials[normalizedEmail];
       let foundUser = mockUsers.find(u => u.email.toLowerCase() === normalizedEmail);
 
-      if (!foundUser || !expectedPassword || password !== expectedPassword) {
+      if (!foundUser || !expectedPassword || safePassword !== expectedPassword) {
         const registeredAdmins = getRegisteredAdmins();
         const registeredAdmin = registeredAdmins.find(
-          (admin) => admin.email.toLowerCase() === normalizedEmail && admin.password === password,
+          (admin) => admin.email.toLowerCase() === normalizedEmail && admin.password === safePassword,
         );
 
         if (!registeredAdmin) {
@@ -91,8 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           churchId: registeredAdmin.churchId,
         };
       }
-      
-      // Set user in state and localStorage
+
       setUser(foundUser);
       localStorage.setItem('user', JSON.stringify(foundUser));
 
@@ -103,7 +135,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const registeredAdmins = getRegisteredAdmins();
         const registeredAdmin = registeredAdmins.find((admin) => admin.id === foundUser.id);
         if (registeredAdmin) {
-          localStorage.setItem('activeChurch', JSON.stringify({
+          const activeChurch: Church = {
             id: registeredAdmin.churchId,
             name: 'Kindred Kids',
             branchName: registeredAdmin.branchName,
@@ -111,11 +143,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             region: registeredAdmin.region,
             district: registeredAdmin.district,
             area: registeredAdmin.area,
-          }));
+          };
+          localStorage.setItem('activeChurch', JSON.stringify(activeChurch));
         }
       }
-      
-      // Redirect based on role
+
       if (foundUser.role === 'admin') {
         navigate('/admin/dashboard');
       } else {
@@ -142,7 +174,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook for using auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

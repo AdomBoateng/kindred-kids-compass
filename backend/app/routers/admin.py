@@ -38,7 +38,7 @@ async def update_church(payload: dict, profile=Depends(require_role("admin"))):
 async def list_teachers(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("users")
-        .select("id, full_name, email, role, church_id")
+        .select("id, full_name, email, phone, avatar_url, role, church_id")
         .eq("church_id", profile["church_id"])
         .eq("role", "teacher")
         .execute()
@@ -128,7 +128,7 @@ async def assign_teacher(payload: TeacherClassAssign, profile=Depends(require_ro
 async def list_students(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("students")
-        .select("id, class_id, first_name, last_name, date_of_birth, guardian_name, guardian_contact, allergies, notes, gender, avatar_url")
+        .select("id, church_id, class_id, first_name, last_name, date_of_birth, guardian_name, guardian_contact, allergies, notes, gender, avatar_url")
         .eq("church_id", profile["church_id"])
         .order("first_name")
         .execute()

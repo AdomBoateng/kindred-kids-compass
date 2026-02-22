@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowLeft } from "lucide-react";
+import { api } from "@/lib/api";
 
 const performanceCategories = ["Bible Quiz", "Memory Verse", "Participation", "Craft Project"];
 
@@ -72,7 +73,7 @@ export default function RecordPerformancePage() {
     }));
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!performanceType) {
       toast({
         title: "Missing Information",
@@ -81,17 +82,31 @@ export default function RecordPerformancePage() {
       });
       return;
     }
-    
-    // In a real app, this would save to the database
-    console.log('Performance saved for:', date);
-    console.log('Type:', performanceType);
-    console.log('Description:', description);
-    console.log('Scores data:', scores);
-    
-    toast({
-      title: "Performance Recorded",
-      description: `Successfully saved ${performanceType} scores for ${format(new Date(date), 'MMMM d, yyyy')}`,
-    });
+
+    try {
+      await api.recordPerformance({
+        class_id: teacherClassId,
+        title: `${performanceType}${description ? ` - ${description}` : ""}`,
+        taken_on: date,
+        scores: classStudents.map((student) => ({
+          student_id: student.id,
+          score: scores[student.id]?.score ?? 0,
+          max_score: 100,
+          notes: scores[student.id]?.notes,
+        })),
+      });
+
+      toast({
+        title: "Performance Recorded",
+        description: `Successfully saved ${performanceType} scores for ${format(new Date(date), 'MMMM d, yyyy')}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Unable to save performance",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   // Calculate average score

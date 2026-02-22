@@ -25,15 +25,13 @@ import {
   TableCell
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
-import { useAuth } from "@/context/AuthContext";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 
 const performanceCategories = ["Bible Quiz", "Memory Verse", "Participation", "Craft Project"];
 
 export default function RecordPerformancePage() {
-  const { user } = useAuth();
   const [performanceType, setPerformanceType] = useState("");
   const [date, setDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
   const [scores, setScores] = useState<Record<string, { score: number, notes: string }>>({});
@@ -41,10 +39,9 @@ export default function RecordPerformancePage() {
   
   const { toast } = useToast();
   
-  // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const { classes, students: classStudents } = useChurchScope();
+  const teacherClass = classes[0];
   const teacherClassId = teacherClass?.id || "";
-  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   const handleScoreChange = (studentId: string, value: string) => {
     const numValue = parseInt(value);

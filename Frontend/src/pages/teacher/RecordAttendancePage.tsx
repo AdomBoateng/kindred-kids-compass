@@ -21,21 +21,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
-import { useAuth } from "@/context/AuthContext";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 
 export default function RecordAttendancePage() {
-  const { user } = useAuth();
   const [date, setDate] = useState<Date>(new Date());
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
   
-  // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const { classes, students: classStudents } = useChurchScope();
+  const teacherClass = classes[0];
   const teacherClassId = teacherClass?.id || "";
-  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   const handleCheckboxChange = (studentId: string, isChecked: boolean) => {
     setAttendance(prev => ({

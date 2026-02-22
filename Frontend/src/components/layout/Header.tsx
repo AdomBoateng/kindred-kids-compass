@@ -11,14 +11,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
-import { getChurchById } from '@/lib/mock-data';
 import { Bell, Menu, X } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useChurchScope } from "@/hooks/use-church-scope";
 import logo from '../../assets/logo.png';
 
 export function Header() {
   const { user, logout } = useAuth();
-  const church = getChurchById(user?.churchId);
+  const { church } = useChurchScope();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string }>>([]);

@@ -62,30 +62,11 @@ export function useChurchScope() {
 
         if (user.role === "admin") {
           const [teachers, classRows, studentRows] = await Promise.all([api.getTeachers(), api.getClasses(), api.getStudents()]);
-
-          const mappedUsers: User[] = teachers.map((teacher) => ({
-            id: teacher.id,
-            name: teacher.full_name,
-            email: teacher.email,
-            role: "teacher",
-            churchId: teacher.church_id,
-          }));
-
-          const mappedClasses: Class[] = classRows.map((classRow) => ({
-            id: classRow.id,
-            name: classRow.name,
-            description: classRow.description,
-            ageGroup: classRow.age_group,
-            churchId: classRow.church_id,
-            teacherIds: (classRow.class_teachers || []).map((assignment) => assignment.teacher_id),
-            studentIds: studentRows.filter((student) => student.class_id === classRow.id).map((student) => student.id),
-          }));
-
-          const mappedStudents = studentRows.map((student) => mapStudent({ ...student, church_id: student.church_id || activeChurch.id }));
-          setUsers(mappedUsers);
-          setClasses(mappedClasses);
-          setStudents(mappedStudents);
-          setRuntimeScopeData({ church: activeChurch, users: mappedUsers, classes: mappedClasses, students: mappedStudents });
+          const mappedUsers: User[] = teachers.map((t) => ({ id: t.id, name: t.full_name, email: t.email, role: "teacher", churchId: t.church_id, avatar: t.avatar_url }));
+          const mappedStudents = studentRows.map((s) => mapStudent({ ...s, church_id: s.church_id || activeChurch.id }));
+          const mappedClasses: Class[] = classRows.map((c) => ({ id: c.id, name: c.name, description: c.description, ageGroup: c.age_group, churchId: c.church_id, teacherIds: mappedUsers.map((u) => u.id), studentIds: mappedStudents.filter((s) => s.classId === c.id).map((s) => s.id) }));
+          setUsers(mappedUsers); setClasses(mappedClasses); setStudents(mappedStudents);
+          localStorage.setItem("runtimeScopeData", JSON.stringify({ church: activeChurch, users: mappedUsers, classes: mappedClasses, students: mappedStudents }));
           return;
         }
 

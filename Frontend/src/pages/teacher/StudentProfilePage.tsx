@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mockStudents, mockClasses } from "@/lib/mock-data";
 import { calculateAge } from "@/lib/date-utils";
 import { ArrowLeft, Calendar, Activity, ClipboardList, FileEdit } from "lucide-react";
 import { AttendanceChart } from "@/components/charts/AttendanceChart";
 import { StudentFormSheet } from "@/components/forms/StudentFormSheet";
 import { useAuth } from "@/context/AuthContext";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { 
   Table,
   TableHeader,
@@ -26,8 +26,9 @@ export default function StudentProfilePage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const { user } = useAuth();
+  const { students, classes } = useChurchScope();
   
-  const student = mockStudents.find(s => s.id === id);
+  const student = students.find((s) => s.id === id);
   
   if (!student) {
     return (
@@ -45,7 +46,7 @@ export default function StudentProfilePage() {
     );
   }
   
-  const studentClass = mockClasses.find(c => c.id === student.classId);
+  const studentClass = classes.find((c) => c.id === student.classId);
   const age = calculateAge(student.dateOfBirth);
   const fullName = `${student.firstName} ${student.lastName}`;
   

@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
-import { mockStudents } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
+import { useChurchScope } from "@/hooks/use-church-scope";
 
 const performanceCategories = ["Bible Quiz", "Memory Verse", "Participation", "Craft Project"];
 
@@ -29,8 +29,9 @@ export default function AddStudentPerformancePage() {
   const [score, setScore] = useState("");
   const [notes, setNotes] = useState("");
   const { toast } = useToast();
+  const { students } = useChurchScope();
   
-  const student = mockStudents.find(s => s.id === id);
+  const student = students.find((s) => s.id === id);
   
   if (!student) {
     return (

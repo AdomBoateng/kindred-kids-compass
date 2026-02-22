@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .logging import RequestLoggingMiddleware, configure_logging
@@ -6,6 +7,13 @@ from .routers import admin, auth, common, storage, teacher
 
 configure_logging()
 app = FastAPI(title=settings.app_name)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(RequestLoggingMiddleware)
 
 

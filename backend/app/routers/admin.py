@@ -90,7 +90,7 @@ async def list_classes(profile=Depends(require_role("admin"))):
 
 @router.post("/classes")
 async def create_class(payload: ClassCreate, profile=Depends(require_role("admin"))):
-    res = supabase_admin.table("classes").insert({**payload.model_dump(), "church_id": profile["church_id"]}).execute()
+    res = supabase_admin.table("classes").insert({**payload.model_dump(mode="json"), "church_id": profile["church_id"]}).execute()
     return res.data[0]
 
 
@@ -120,7 +120,7 @@ async def assign_teacher(payload: TeacherClassAssign, profile=Depends(require_ro
     if not teacher.data:
         raise HTTPException(status_code=404, detail="Teacher not found")
 
-    record = supabase_admin.table("class_teachers").insert(payload.model_dump()).execute()
+    record = supabase_admin.table("class_teachers").insert(payload.model_dump(mode="json")).execute()
     return record.data[0]
 
 
@@ -138,7 +138,7 @@ async def list_students(profile=Depends(require_role("admin"))):
 
 @router.post("/students")
 async def create_student(payload: StudentCreate, profile=Depends(require_role("admin"))):
-    body = payload.model_dump()
+    body = payload.model_dump(mode="json")
     body["church_id"] = profile["church_id"]
     res = supabase_admin.table("students").insert(body).execute()
     return res.data[0]

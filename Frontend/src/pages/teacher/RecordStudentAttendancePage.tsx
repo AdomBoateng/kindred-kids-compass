@@ -16,9 +16,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarIcon, ArrowLeft } from "lucide-react";
-import { mockStudents } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useChurchScope } from "@/hooks/use-church-scope";
 
 export default function RecordStudentAttendancePage() {
   const { id } = useParams<{ id: string }>();
@@ -26,8 +26,9 @@ export default function RecordStudentAttendancePage() {
   const [isPresent, setIsPresent] = useState(false);
   const [notes, setNotes] = useState("");
   const { toast } = useToast();
+  const { students } = useChurchScope();
   
-  const student = mockStudents.find(s => s.id === id);
+  const student = students.find((s) => s.id === id);
   
   if (!student) {
     return (

@@ -17,9 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
-import { getStudentById } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import { useChurchScope } from "@/hooks/use-church-scope";
 
 const noteCategories = ["Behavior", "Academic", "Social", "Special Needs", "Parent Communication", "General"];
 
@@ -30,8 +30,9 @@ export default function AddStudentNotePage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const { toast } = useToast();
+  const { students } = useChurchScope();
   
-  const student = id ? getStudentById(id) : undefined;
+  const student = students.find((s) => s.id === id);
   
   if (!student) {
     return (

@@ -13,14 +13,16 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { mockClasses } from "@/lib/mock-data";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, RefreshCw, X, Check } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function NewStudentPage() {
   const navigate = useNavigate();
+  const { classes } = useChurchScope();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -34,6 +36,7 @@ export default function NewStudentPage() {
     avatar: ""
   });
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Camera modal state
@@ -46,6 +49,7 @@ export default function NewStudentPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -123,14 +127,38 @@ export default function NewStudentPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would send this data to an API
-    toast({
-      title: "Student added successfully",
-      description: `${formData.firstName} ${formData.lastName} has been added.`
-    });
-    navigate("/admin/students");
+
+    try {
+      const created = await api.createStudent({
+        class_id: formData.classId,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dateOfBirth,
+        guardian_name: formData.guardianName,
+        guardian_contact: formData.guardianContact,
+        gender: formData.gender as "male" | "female" | "other" | undefined,
+        allergies: formData.allergies || undefined,
+        notes: formData.notes || undefined,
+        avatar_url: formData.avatar || undefined,
+      });
+
+      if (selectedFile && created && typeof created === "object" && "id" in created) {
+        await api.uploadStudentAvatar(String((created as { id: string }).id), selectedFile);
+      }
+      toast({
+        title: "Student added successfully",
+        description: `${formData.firstName} ${formData.lastName} has been added.`
+      });
+      navigate("/admin/students");
+    } catch (error) {
+      toast({
+        title: "Unable to add student",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -293,7 +321,7 @@ export default function NewStudentPage() {
                     <SelectValue placeholder="Select class" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockClasses.map(cls => (
+                    {classes.map(cls => (
                       <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
                     ))}
                   </SelectContent>

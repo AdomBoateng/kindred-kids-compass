@@ -8,15 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { mockUsers } from "@/lib/mock-data";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
+import { api } from "@/lib/api";
 
 export default function CreateClassPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { teachers } = useChurchScope();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -25,8 +27,6 @@ export default function CreateClassPage() {
     teacherIds: [] as string[],
   });
 
-  // Get only teachers from users
-  const teachers = mockUsers.filter(user => user.role === "teacher");
 
   const handleTeacherToggle = (teacherId: string) => {
     setFormData(prev => ({
@@ -37,7 +37,7 @@ export default function CreateClassPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.ageGroup) {
@@ -49,15 +49,26 @@ export default function CreateClassPage() {
       return;
     }
 
-    // Here you would typically save the class data
-    console.log("Creating class:", formData);
-    
-    toast({
-      title: "Success",
-      description: "Class created successfully!",
-    });
-    
-    navigate("/admin/classes");
+    try {
+      await api.createClass({
+        name: formData.name,
+        age_group: formData.ageGroup,
+        description: formData.description || undefined,
+      });
+
+      toast({
+        title: "Success",
+        description: "Class created successfully!",
+      });
+      
+      navigate("/admin/classes");
+    } catch (error) {
+      toast({
+        title: "Unable to create class",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

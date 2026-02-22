@@ -112,3 +112,26 @@ async def add_student_note(payload: StudentNoteIn, profile=Depends(require_role(
         .execute()
     )
     return res.data[0]
+
+
+@router.delete("/students/{student_id}")
+async def remove_student(student_id: str, profile=Depends(require_role("teacher"))):
+    class_links = supabase_admin.table("class_teachers").select("class_id").eq("teacher_id", profile["id"]).execute()
+    class_ids = [row["class_id"] for row in class_links.data]
+    if not class_ids:
+        return {"deleted": False}
+
+    supabase_admin.table("students").delete().eq("id", student_id).eq("church_id", profile["church_id"]).in_("class_id", class_ids).execute()
+    return {"deleted": True}
+
+
+@router.delete("/attendance/{session_id}")
+async def delete_attendance(session_id: str, profile=Depends(require_role("teacher"))):
+    supabase_admin.table("attendance_sessions").delete().eq("id", session_id).eq("recorded_by", profile["id"]).execute()
+    return {"deleted": True}
+
+
+@router.delete("/performance/{test_id}")
+async def delete_performance(test_id: str, profile=Depends(require_role("teacher"))):
+    supabase_admin.table("performance_tests").delete().eq("id", test_id).eq("recorded_by", profile["id"]).execute()
+    return {"deleted": True}

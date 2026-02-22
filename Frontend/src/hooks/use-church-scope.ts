@@ -105,7 +105,7 @@ export function useChurchScope() {
             description: classRow.description,
             ageGroup: classRow.age_group,
             churchId: classRow.church_id,
-            teacherIds: mappedUsers.map((mappedUser) => mappedUser.id),
+            teacherIds: (classRow.class_teachers || []).map((assignment) => assignment.teacher_id),
             studentIds: studentRows.filter((student) => student.class_id === classRow.id).map((student) => student.id),
           }));
 

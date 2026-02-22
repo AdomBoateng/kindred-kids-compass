@@ -84,7 +84,13 @@ async def remove_teacher(teacher_id: str, profile=Depends(require_role("admin"))
 
 @router.get("/classes")
 async def list_classes(profile=Depends(require_role("admin"))):
-    res = supabase_admin.table("classes").select("*").eq("church_id", profile["church_id"]).order("name").execute()
+    res = (
+        supabase_admin.table("classes")
+        .select("id, church_id, name, description, age_group, class_teachers(teacher_id)")
+        .eq("church_id", profile["church_id"])
+        .order("name")
+        .execute()
+    )
     return res.data
 
 
@@ -122,6 +128,35 @@ async def assign_teacher(payload: TeacherClassAssign, profile=Depends(require_ro
 
     record = supabase_admin.table("class_teachers").insert(payload.model_dump(mode="json")).execute()
     return record.data[0]
+
+
+@router.post("/classes/unassign-teacher")
+async def unassign_teacher(payload: TeacherClassAssign, profile=Depends(require_role("admin"))):
+    teacher = (
+        supabase_admin.table("users")
+        .select("id")
+        .eq("id", payload.teacher_id)
+        .eq("church_id", profile["church_id"])
+        .eq("role", "teacher")
+        .single()
+        .execute()
+    )
+    if not teacher.data:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+
+    class_row = (
+        supabase_admin.table("classes")
+        .select("id")
+        .eq("id", payload.class_id)
+        .eq("church_id", profile["church_id"])
+        .single()
+        .execute()
+    )
+    if not class_row.data:
+        raise HTTPException(status_code=404, detail="Class not found")
+
+    supabase_admin.table("class_teachers").delete().eq("class_id", payload.class_id).eq("teacher_id", payload.teacher_id).execute()
+    return {"deleted": True}
 
 
 @router.get("/students")

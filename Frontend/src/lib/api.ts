@@ -87,8 +87,10 @@ export const api = {
   getAdminDashboard: () => request<{ students: number; classes: number; teachers: number }>("/api/v1/admin/dashboard", { requiresAuth: true }),
   getTeachers: () => request<Array<{ id: string; full_name: string; email: string; phone?: string; avatar_url?: string; role: "teacher"; church_id: string }>>("/api/v1/admin/teachers", { requiresAuth: true }),
   createTeacher: (payload: { full_name: string; email: string; phone?: string }) => request("/api/v1/admin/teachers", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
-  getClasses: () => request<Array<{ id: string; name: string; description?: string; age_group: string; church_id: string }>>("/api/v1/admin/classes", { requiresAuth: true }),
+  getClasses: () => request<Array<{ id: string; name: string; description?: string; age_group: string; church_id: string; class_teachers?: Array<{ teacher_id: string }> }>>("/api/v1/admin/classes", { requiresAuth: true }),
   createClass: (payload: { name: string; age_group: string; description?: string }) => request("/api/v1/admin/classes", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
+  assignTeacherToClass: (payload: { class_id: string; teacher_id: string }) => request("/api/v1/admin/classes/assign-teacher", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
+  unassignTeacherFromClass: (payload: { class_id: string; teacher_id: string }) => request("/api/v1/admin/classes/unassign-teacher", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
   getStudents: () => request<Array<{ id: string; class_id: string; church_id?: string; first_name: string; last_name: string; date_of_birth: string; guardian_name: string; guardian_contact: string; allergies?: string; notes?: string; gender?: "male" | "female" | "other"; avatar_url?: string }>>("/api/v1/admin/students", { requiresAuth: true }),
   createStudent: (payload: { class_id: string; first_name: string; last_name: string; date_of_birth: string; guardian_name: string; guardian_contact: string; allergies?: string; notes?: string; gender?: "male" | "female" | "other"; avatar_url?: string }) => request("/api/v1/admin/students", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
 
@@ -125,7 +127,13 @@ export const api = {
     return request("/api/v1/admin/teachers", { method: "POST", body: JSON.stringify(payload), requiresAuth: true });
   },
   getClasses() {
-    return request<Array<{ id: string; name: string; description?: string; age_group: string; church_id: string }>>("/api/v1/admin/classes", { requiresAuth: true });
+    return request<Array<{ id: string; name: string; description?: string; age_group: string; church_id: string; class_teachers?: Array<{ teacher_id: string }> }>>("/api/v1/admin/classes", { requiresAuth: true });
+  },
+  assignTeacherToClass(payload: { class_id: string; teacher_id: string }) {
+    return request("/api/v1/admin/classes/assign-teacher", { method: "POST", body: JSON.stringify(payload), requiresAuth: true });
+  },
+  unassignTeacherFromClass(payload: { class_id: string; teacher_id: string }) {
+    return request("/api/v1/admin/classes/unassign-teacher", { method: "POST", body: JSON.stringify(payload), requiresAuth: true });
   },
   createClass(payload: { name: string; age_group: string; description?: string }) {
     return request("/api/v1/admin/classes", { method: "POST", body: JSON.stringify(payload), requiresAuth: true });

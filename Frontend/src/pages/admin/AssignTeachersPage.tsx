@@ -1,28 +1,42 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockClasses, mockUsers } from "@/lib/mock-data";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/logo.png"; // Add this import if not present
+import logo from "@/assets/logo.png";
+import { useChurchScope } from "@/hooks/use-church-scope";
+import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 export default function AssignTeachersPage() {
   const navigate = useNavigate();
-  const [assignments, setAssignments] = useState<Record<string, string[]>>(
-    // Initialize with current assignments from mock data
-    mockClasses.reduce((acc, cls) => {
-      acc[cls.id] = cls.teacherIds;
-      return acc;
-    }, {} as Record<string, string[]>)
+  const { toast } = useToast();
+  const { classes, teachers, isLoading } = useChurchScope();
+  const [assignments, setAssignments] = useState<Record<string, string[]>>({});
+  const [initialAssignments, setInitialAssignments] = useState<Record<string, string[]>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const normalizedInitialAssignments = useMemo(
+    () =>
+      classes.reduce(
+        (acc, classItem) => {
+          acc[classItem.id] = classItem.teacherIds;
+          return acc;
+        },
+        {} as Record<string, string[]>,
+      ),
+    [classes],
   );
 
-  // Extract teachers from mockUsers
-  const teachers = mockUsers.filter(user => user.role === "teacher");
+  useEffect(() => {
+    setAssignments(normalizedInitialAssignments);
+    setInitialAssignments(normalizedInitialAssignments);
+  }, [normalizedInitialAssignments]);
 
   const toggleTeacherAssignment = (classId: string, teacherId: string) => {
     setAssignments(prev => {
@@ -42,17 +56,61 @@ export default function AssignTeachersPage() {
     });
   };
 
-  const handleSaveAssignments = () => {
-    // In a real app, we would send this data to an API
-    console.log("New teacher assignments:", assignments);
-    
-    toast({
-      title: "Assignments updated",
-      description: "Teacher class assignments have been updated successfully."
-    });
-    
-    navigate("/admin/classes");
+  const handleSaveAssignments = async () => {
+    setIsSaving(true);
+    try {
+      const additions: Array<{ class_id: string; teacher_id: string }> = [];
+      const removals: Array<{ class_id: string; teacher_id: string }> = [];
+
+      for (const classItem of classes) {
+        const currentSet = new Set(initialAssignments[classItem.id] || []);
+        const nextSet = new Set(assignments[classItem.id] || []);
+
+        for (const teacherId of nextSet) {
+          if (!currentSet.has(teacherId)) {
+            additions.push({ class_id: classItem.id, teacher_id: teacherId });
+          }
+        }
+
+        for (const teacherId of currentSet) {
+          if (!nextSet.has(teacherId)) {
+            removals.push({ class_id: classItem.id, teacher_id: teacherId });
+          }
+        }
+      }
+
+      await Promise.all([
+        ...additions.map((payload) => api.assignTeacherToClass(payload)),
+        ...removals.map((payload) => api.unassignTeacherFromClass(payload)),
+      ]);
+
+      toast({
+        title: "Assignments updated",
+        description: "Teacher class assignments have been updated successfully.",
+      });
+
+      navigate("/admin/classes");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "Failed to save teacher assignments.";
+      toast({
+        title: "Unable to save assignments",
+        description: detail,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <p className="text-muted-foreground">Loading class assignments...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -76,7 +134,7 @@ export default function AssignTeachersPage() {
       />
       
       <div className="grid grid-cols-1 gap-6">
-        {mockClasses.map(cls => (
+        {classes.map(cls => (
           <Card key={cls.id}>
             <CardHeader>
               <CardTitle>{cls.name}</CardTitle>
@@ -134,13 +192,10 @@ export default function AssignTeachersPage() {
         <Button variant="outline" className="mr-2" onClick={() => navigate("/admin/classes")}>
           Cancel
         </Button>
-        <Button onClick={handleSaveAssignments}>Save Assignments</Button>
+        <Button onClick={handleSaveAssignments} disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save Assignments"}
+        </Button>
       </div>
     </Layout>
   );
-}
-
-// Helper function for conditional class names
-function cn(...classes: (string | undefined | boolean)[]) {
-  return classes.filter(Boolean).join(' ');
 }

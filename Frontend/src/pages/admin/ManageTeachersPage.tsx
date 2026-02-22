@@ -9,28 +9,39 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { mockUsers, mockClasses } from "@/lib/mock-data";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Edit, Mail, UserCheck, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
+import { useChurchScope } from "@/hooks/use-church-scope";
 
 export default function ManageTeachersPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { teachers, classes, isLoading } = useChurchScope();
   
   // Find the teacher by ID
-  const teacher = mockUsers.find(user => user.id === id && user.role === "teacher");
+  const teacher = teachers.find(user => user.id === id);
   
   // Get classes assigned to this teacher
-  const assignedClasses = mockClasses.filter(cls => cls.teacherIds.includes(id || ""));
+  const assignedClasses = classes.filter(cls => cls.teacherIds.includes(id || ""));
   
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: teacher?.name || "",
     email: teacher?.email || "",
   });
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <p className="text-muted-foreground">Loading teacher profile...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!teacher) {
     return (

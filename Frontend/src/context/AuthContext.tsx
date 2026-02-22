@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: profile.email,
         role: profile.role,
         churchId: profile.church_id,
+        avatar: profile.avatar_url,
       };
 
       setUser(userFromApi);

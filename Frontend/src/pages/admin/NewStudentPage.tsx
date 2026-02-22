@@ -36,6 +36,7 @@ export default function NewStudentPage() {
     avatar: ""
   });
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Camera modal state
@@ -48,6 +49,7 @@ export default function NewStudentPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -129,7 +131,7 @@ export default function NewStudentPage() {
     e.preventDefault();
 
     try {
-      await api.createStudent({
+      const created = await api.createStudent({
         class_id: formData.classId,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -141,6 +143,10 @@ export default function NewStudentPage() {
         notes: formData.notes || undefined,
         avatar_url: formData.avatar || undefined,
       });
+
+      if (selectedFile && created && typeof created === "object" && "id" in created) {
+        await api.uploadStudentAvatar(String((created as { id: string }).id), selectedFile);
+      }
       toast({
         title: "Student added successfully",
         description: `${formData.firstName} ${formData.lastName} has been added.`

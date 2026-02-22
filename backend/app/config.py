@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     supabase_service_role_key: str
     supabase_jwt_audience: str = "authenticated"
     supabase_storage_bucket: str = "student-avatars"
+    supabase_user_avatar_bucket: str = "user-avatars"
     jwt_cache_ttl_seconds: int = 3600
 
     @property

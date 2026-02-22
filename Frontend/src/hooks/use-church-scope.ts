@@ -66,6 +66,7 @@ export function useChurchScope() {
   const [users, setUsers] = useState<User[]>(getUsersByChurchId(churchId));
   const [classes, setClasses] = useState<Class[]>(getClassesByChurchId(churchId));
   const [students, setStudents] = useState<Student[]>(getStudentsByChurchId(churchId));
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -73,6 +74,7 @@ export function useChurchScope() {
     }
 
     const load = async () => {
+      setIsLoading(true);
       try {
         const churchResponse = await api.getChurch();
         const activeChurch: Church = {
@@ -107,7 +109,7 @@ export function useChurchScope() {
             studentIds: studentRows.filter((student) => student.class_id === classRow.id).map((student) => student.id),
           }));
 
-          const mappedStudents = studentRows.map(mapStudent);
+          const mappedStudents = studentRows.map((student) => mapStudent({ ...student, church_id: student.church_id || activeChurch.id }));
           setUsers(mappedUsers);
           setClasses(mappedClasses);
           setStudents(mappedStudents);
@@ -127,7 +129,7 @@ export function useChurchScope() {
           studentIds: teacherStudents.filter((student) => student.class_id === classRow.id).map((student) => student.id),
         }));
 
-        const mappedStudents = teacherStudents.map(mapStudent);
+        const mappedStudents = teacherStudents.map((student) => mapStudent({ ...student, church_id: student.church_id || (churchId || "") }));
         const teacherUser: User = {
           id: user.id,
           name: user.name,
@@ -141,6 +143,8 @@ export function useChurchScope() {
         setRuntimeScopeData({ church: activeChurch, users: [teacherUser], classes: mappedClasses, students: mappedStudents });
       } catch (error) {
         console.warn("Unable to load church scope from API, using local data.", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -155,7 +159,8 @@ export function useChurchScope() {
       classes,
       students,
       teachers: users.filter((scopeUser) => scopeUser.role === "teacher"),
+      isLoading,
     }),
-    [churchId, church, users, classes, students],
+    [churchId, church, users, classes, students, isLoading],
   );
 }

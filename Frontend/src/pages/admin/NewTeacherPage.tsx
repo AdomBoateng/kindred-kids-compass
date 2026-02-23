@@ -25,6 +25,7 @@ export default function NewTeacherPage() {
     avatar: "",
     dateOfBirth: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -259,6 +260,18 @@ export default function NewTeacherPage() {
                 />
               </div>
 
+                <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <Input
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
@@ -275,7 +288,7 @@ export default function NewTeacherPage() {
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
                   required
@@ -287,7 +300,7 @@ export default function NewTeacherPage() {
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required

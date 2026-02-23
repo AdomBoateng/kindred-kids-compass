@@ -73,7 +73,7 @@ async def get_current_profile(token_claims: dict[str, Any] = Depends(verify_supa
 
     profile_res = (
         supabase_admin.table("users")
-        .select("id, full_name, email, role, church_id")
+        .select("id, full_name, email, role, church_id, phone, avatar_url")
         .eq("id", user_id)
         .single()
         .execute()

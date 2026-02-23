@@ -21,20 +21,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { getPrimaryClassForTeacher, getStudentsByClassId } from "@/lib/mock-data";
-import { useAuth } from "@/context/AuthContext";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 export default function RecordAttendancePage() {
-  const { user } = useAuth();
   const [date, setDate] = useState<Date>(new Date());
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
   
-  // For demo, assume teacher with ID 2 is assigned to class with ID 1 (Preschool Class)
-  const teacherClass = getPrimaryClassForTeacher(user?.id, user?.churchId);
+  const { classes, students: classStudents } = useChurchScope();
+  const teacherClass = classes[0];
   const teacherClassId = teacherClass?.id || "";
-  const classStudents = getStudentsByClassId(teacherClassId, user?.churchId);
   
   const handleCheckboxChange = (studentId: string, isChecked: boolean) => {
     setAttendance(prev => ({
@@ -43,15 +41,28 @@ export default function RecordAttendancePage() {
     }));
   };
   
-  const handleSubmit = () => {
-    // In a real app, this would save to the database
-    console.log('Attendance saved for:', format(date, 'yyyy-MM-dd'));
-    console.log('Attendance data:', attendance);
-    
-    toast({
-      title: "Attendance Recorded",
-      description: `Successfully saved attendance for ${format(date, 'MMMM d, yyyy')}`,
-    });
+  const handleSubmit = async () => {
+    try {
+      await api.recordAttendance({
+        class_id: teacherClassId,
+        session_date: format(date, 'yyyy-MM-dd'),
+        students: classStudents.map((student) => ({
+          student_id: student.id,
+          present: attendance[student.id] ?? false,
+        })),
+      });
+
+      toast({
+        title: "Attendance Recorded",
+        description: `Successfully saved attendance for ${format(date, 'MMMM d, yyyy')}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Unable to save attendance",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   const presentCount = Object.values(attendance).filter(v => v).length;

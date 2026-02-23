@@ -41,6 +41,14 @@ uvicorn app.main:app --reload --port 8000
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/signup`
 
+### CORS (frontend access)
+Set `CORS_ALLOWED_ORIGINS` (comma-separated) in `.env` if your frontend runs on a custom origin.
+Default supports:
+- `http://localhost:5173`
+- `http://127.0.0.1:5173`
+- `http://localhost:8080`
+- `http://127.0.0.1:8080`
+
 ### Signup behavior
 - `role=admin`: creates a new church branch + admin user record.
 - `role=teacher`: creates teacher user record for an existing `church_id`.

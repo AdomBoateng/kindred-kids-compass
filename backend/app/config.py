@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     app_name: str = "Kindred Kids Compass API"
     app_env: str = "development"
     api_prefix: str = "/api/v1"
+    cors_allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080"
 
     supabase_url: str
     supabase_anon_key: str

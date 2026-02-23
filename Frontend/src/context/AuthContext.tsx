@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { Church, User } from '@/types';
 import { containsUnsafeInput, isValidEmail, sanitizeText } from '@/lib/security';
+import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -92,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user');
     localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     localStorage.removeItem('runtimeScopeData');
+    toast({ title: 'Logged out', description: 'You have been signed out successfully.' });
     navigate('/login');
   };
 

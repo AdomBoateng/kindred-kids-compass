@@ -36,7 +36,7 @@ export default function TeachersPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTeachers.map((teacher) => (
-          <Card key={teacher.id} className="p-4">
+          <Card key={teacher.id} className="p-4 border-0 shadow-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 text-white hover:scale-[1.01] transition-transform">
             <div className="flex items-center space-x-4">
               <Avatar className="h-12 w-12"><AvatarImage src={teacher.avatar} alt={teacher.name} /><AvatarFallback>{teacher.name.charAt(0)}</AvatarFallback></Avatar>
               <div className="flex-1 min-w-0"><p className="text-sm font-medium">{teacher.name}</p><p className="text-xs text-muted-foreground truncate">{teacher.email}</p></div>

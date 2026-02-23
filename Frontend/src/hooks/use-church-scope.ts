@@ -26,6 +26,15 @@ function getActiveChurchFromStorage(churchId?: string): Church | undefined {
   }
 }
 
+interface AdminClassRow {
+  id: string;
+  name: string;
+  description?: string;
+  age_group: string;
+  church_id: string;
+  class_teachers?: Array<{ teacher_id: string }>;
+}
+
 const mapStudent = (student: { id: string; class_id: string; church_id?: string; first_name: string; last_name: string; date_of_birth: string; guardian_name: string; guardian_contact: string; allergies?: string; notes?: string; gender?: "male" | "female" | "other"; avatar_url?: string }): Student => ({
   id: student.id,
   classId: student.class_id,
@@ -64,7 +73,7 @@ export function useChurchScope() {
           const [teachers, classRows, studentRows] = await Promise.all([api.getTeachers(), api.getClasses(), api.getStudents()]);
           const mappedUsers: User[] = teachers.map((t) => ({ id: t.id, name: t.full_name, email: t.email, role: "teacher", churchId: t.church_id, avatar: t.avatar_url }));
           const mappedStudents = studentRows.map((s) => mapStudent({ ...s, church_id: s.church_id || activeChurch.id }));
-          const mappedClasses: Class[] = classRows.map((c) => ({ id: c.id, name: c.name, description: c.description, ageGroup: c.age_group, churchId: c.church_id, teacherIds: mappedUsers.map((u) => u.id), studentIds: mappedStudents.filter((s) => s.classId === c.id).map((s) => s.id) }));
+          const mappedClasses: Class[] = classRows.map((c: AdminClassRow) => ({ id: c.id, name: c.name, description: c.description, ageGroup: c.age_group, churchId: c.church_id, teacherIds: (c.class_teachers || []).map((row: { teacher_id: string }) => row.teacher_id), studentIds: mappedStudents.filter((s) => s.classId === c.id).map((s) => s.id) }));
           setUsers(mappedUsers); setClasses(mappedClasses); setStudents(mappedStudents);
           localStorage.setItem("runtimeScopeData", JSON.stringify({ church: activeChurch, users: mappedUsers, classes: mappedClasses, students: mappedStudents }));
           return;

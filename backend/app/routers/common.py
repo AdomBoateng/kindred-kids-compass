@@ -1,6 +1,14 @@
+import asyncio
+import base64
+import re
+import smtplib
+from email.mime.text import MIMEText
+
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 
 from ..auth import get_current_profile
+from ..config import settings
 from ..supabase_client import supabase_admin, supabase_anon
 
 router = APIRouter(prefix="/common", tags=["common"])
@@ -61,6 +69,22 @@ async def notifications(profile=Depends(get_current_profile)):
     return res.data
 
 
+def _send_email_background(recipients: list[str], subject: str, message: str):
+    if not recipients or not settings.smtp_host or not settings.smtp_from_email:
+        return
+
+    msg = MIMEText(message)
+    msg["Subject"] = subject
+    msg["From"] = settings.smtp_from_email
+    msg["To"] = ", ".join(recipients)
+
+    with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as server:
+        server.starttls()
+        if settings.smtp_username and settings.smtp_password:
+            server.login(settings.smtp_username, settings.smtp_password)
+        server.sendmail(settings.smtp_from_email, recipients, msg.as_string())
+
+
 @router.post("/notifications")
 async def create_notification(payload: dict, profile=Depends(get_current_profile)):
     data = {
@@ -71,6 +95,14 @@ async def create_notification(payload: dict, profile=Depends(get_current_profile
         "message": payload["message"],
     }
     res = supabase_admin.table("notifications").insert(data).execute()
+
+    if payload.get("send_email", True):
+        users_query = supabase_admin.table("users").select("email, role").eq("church_id", profile["church_id"])
+        users = users_query.execute().data
+        target = data["target_role"]
+        recipients = [u["email"] for u in users if target == "all" or u["role"] == target]
+        asyncio.get_running_loop().run_in_executor(None, _send_email_background, recipients, data["title"], data["message"])
+
     return res.data[0]
 
 
@@ -78,7 +110,7 @@ async def create_notification(payload: dict, profile=Depends(get_current_profile
 async def get_settings(profile=Depends(get_current_profile)):
     res = (
         supabase_admin.table("user_settings")
-        .select("security, notifications, privacy, advanced, display")
+        .select("security, notifications, privacy, advanced")
         .eq("user_id", profile["id"])
         .maybe_single()
         .execute()
@@ -98,13 +130,12 @@ async def get_settings(profile=Depends(get_current_profile)):
         },
         "privacy": {"showEmail": False, "showPhone": True},
         "advanced": {},
-        "display": {"darkMode": False, "highContrast": False, "largeText": False},
     }
 
 
 @router.patch("/settings/{section}")
 async def update_settings(section: str, payload: dict, profile=Depends(get_current_profile)):
-    if section not in {"security", "notifications", "privacy", "advanced", "display"}:
+    if section not in {"security", "notifications", "privacy", "advanced"}:
         raise HTTPException(status_code=404, detail="Invalid settings section")
 
     existing = (
@@ -127,6 +158,44 @@ async def update_settings(section: str, payload: dict, profile=Depends(get_curre
 async def upcoming_birthdays(days: int = 30, profile=Depends(get_current_profile)):
     res = supabase_admin.rpc("get_upcoming_birthdays", {"p_church_id": profile["church_id"], "p_days": days}).execute()
     return res.data
+
+
+@router.post("/birthdays/remind-sms")
+async def birthday_sms_reminder(profile=Depends(get_current_profile)):
+    if not settings.hubtel_client_id or not settings.hubtel_client_secret or not settings.hubtel_from:
+        raise HTTPException(status_code=400, detail="Hubtel SMS settings are not configured")
+
+    birthdays = supabase_admin.rpc("get_upcoming_birthdays", {"p_church_id": profile["church_id"], "p_days": 2}).execute().data
+    if not birthdays:
+        return {"sent": 0}
+
+    students = supabase_admin.table("students").select("id, guardian_contact, first_name, last_name").eq("church_id", profile["church_id"]).execute().data
+    by_id = {s["id"]: s for s in students}
+
+    sent = 0
+    auth = base64.b64encode(f"{settings.hubtel_client_id}:{settings.hubtel_client_secret}".encode()).decode()
+    headers = {"Authorization": f"Basic {auth}", "Content-Type": "application/json"}
+
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        for birthday in birthdays:
+            student = by_id.get(birthday["student_id"])
+            if not student or not student.get("guardian_contact"):
+                continue
+            to_number = re.sub(r"\s+", "", student["guardian_contact"])
+            payload = {
+                "From": settings.hubtel_from,
+                "To": to_number,
+                "Content": f"Reminder: {student['first_name']} {student['last_name']} has a birthday in {birthday['days_until_birthday']} day(s).",
+                "RegisteredDelivery": True,
+            }
+            try:
+                response = await client.post(settings.hubtel_api_url, headers=headers, json=payload)
+                if response.status_code < 300:
+                    sent += 1
+            except Exception:
+                continue
+
+    return {"sent": sent}
 
 
 @router.get("/analytics/attendance")

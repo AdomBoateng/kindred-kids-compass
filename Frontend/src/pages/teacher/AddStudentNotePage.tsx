@@ -30,8 +30,8 @@ export default function AddStudentNotePage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const { toast } = useToast();
+  
   const { students } = useChurchScope();
-
   const student = students.find((s) => s.id === id);
   
   if (!student) {

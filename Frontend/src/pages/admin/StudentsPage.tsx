@@ -39,7 +39,7 @@ export default function StudentsPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredStudents.map((student) => (
-          <div key={student.id} className="relative">
+          <div key={student.id} className="relative rounded-2xl border-0 shadow-xl bg-gradient-to-br from-sky-50 to-indigo-50 p-2">
             <StudentCard student={student} classInfo={getClassInfo(student.classId)} />
             <Button variant="destructive" size="sm" className="absolute top-2 right-2 z-10" onClick={() => handleDeleteStudent(student.id, `${student.firstName} ${student.lastName}`)}><Trash2 className="h-4 w-4" /></Button>
           </div>

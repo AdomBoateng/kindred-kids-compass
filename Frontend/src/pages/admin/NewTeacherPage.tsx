@@ -22,7 +22,8 @@ export default function NewTeacherPage() {
     password: "",
     confirmPassword: "",
     bio: "",
-    avatar: ""
+    avatar: "",
+    dateOfBirth: ""
   });
 
   const [preview, setPreview] = useState<string | null>(null);
@@ -128,6 +129,7 @@ export default function NewTeacherPage() {
         full_name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
+        date_of_birth: formData.dateOfBirth || undefined,
       });
 
       toast({

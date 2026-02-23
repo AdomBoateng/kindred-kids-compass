@@ -71,7 +71,7 @@ export function useChurchScope() {
 
         if (user.role === "admin") {
           const [teachers, classRows, studentRows] = await Promise.all([api.getTeachers(), api.getClasses(), api.getStudents()]);
-          const mappedUsers: User[] = teachers.map((t) => ({ id: t.id, name: t.full_name, email: t.email, role: "teacher", churchId: t.church_id, avatar: t.avatar_url }));
+          const mappedUsers: User[] = teachers.map((t) => ({ id: t.id, name: t.full_name, email: t.email, role: "teacher", churchId: t.church_id, avatar: t.avatar_url, dateOfBirth: t.date_of_birth } as User));
           const mappedStudents = studentRows.map((s) => mapStudent({ ...s, church_id: s.church_id || activeChurch.id }));
           const mappedClasses: Class[] = classRows.map((c: AdminClassRow) => ({ id: c.id, name: c.name, description: c.description, ageGroup: c.age_group, churchId: c.church_id, teacherIds: (c.class_teachers || []).map((row: { teacher_id: string }) => row.teacher_id), studentIds: mappedStudents.filter((s) => s.classId === c.id).map((s) => s.id) }));
           setUsers(mappedUsers); setClasses(mappedClasses); setStudents(mappedStudents);

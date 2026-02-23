@@ -38,7 +38,7 @@ async def update_church(payload: dict, profile=Depends(require_role("admin"))):
 async def list_teachers(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("users")
-        .select("id, full_name, email, phone, avatar_url, role, church_id")
+        .select("id, full_name, email, phone, avatar_url, date_of_birth, role, church_id")
         .eq("church_id", profile["church_id"])
         .eq("role", "teacher")
         .execute()
@@ -68,6 +68,7 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
                 "phone": payload.phone,
                 "role": "teacher",
                 "church_id": profile["church_id"],
+                "date_of_birth": str(payload.date_of_birth) if payload.date_of_birth else None,
             }
         )
         .execute()
@@ -77,7 +78,7 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
 
 @router.patch("/teachers/{teacher_id}")
 async def update_teacher(teacher_id: str, payload: dict, profile=Depends(require_role("admin"))):
-    allowed = {"full_name", "email", "phone", "avatar_url"}
+    allowed = {"full_name", "email", "phone", "avatar_url", "date_of_birth"}
     updates = {k: v for k, v in payload.items() if k in allowed}
     if not updates:
         raise HTTPException(status_code=400, detail="No valid fields provided")

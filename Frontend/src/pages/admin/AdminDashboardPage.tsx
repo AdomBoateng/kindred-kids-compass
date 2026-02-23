@@ -20,6 +20,7 @@ export default function AdminDashboardPage() {
   const [attendanceData, setAttendanceData] = useState<Array<{ date: string; rate: number; students: number }>>([]);
   const [performanceData, setPerformanceData] = useState<Array<{ testName: string; averageScore: number; participationRate: number }>>([]);
   const [birthdayStudents, setBirthdayStudents] = useState(students);
+  const [birthdayNotices, setBirthdayNotices] = useState<Array<{ id: string; label: string }>>([]);
 
   useEffect(() => {
     api.getAttendanceAnalytics().then((data) => {
@@ -42,8 +43,8 @@ export default function AdminDashboardPage() {
       );
     }).catch(() => setPerformanceData([]));
 
-    api.getBirthdays(30).then((rows) => {
-      const mapped = rows.map((row) => {
+    api.getBirthdays(30, true).then((rows) => {
+      const mapped = rows.filter((row) => row.person_type === "student").map((row) => {
         const names = row.full_name.split(" ");
         return {
           id: row.student_id,
@@ -58,6 +59,7 @@ export default function AdminDashboardPage() {
         };
       });
       setBirthdayStudents(mapped);
+      setBirthdayNotices(rows.map((row) => ({ id: row.id, label: `${row.full_name} (${row.person_type}) - in ${row.days_until_birthday} day(s)` })));
     }).catch(() => setBirthdayStudents([]));
   }, [user?.churchId]);
 
@@ -86,7 +88,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="space-y-8">
-            <BirthdayList students={birthdayStudents} emptyMessage="No upcoming birthdays in the next 30 days." />
+            <div className="space-y-4"><BirthdayList students={birthdayStudents} emptyMessage="No upcoming birthdays in the next 30 days." /><div className="rounded-lg border p-4 bg-background"><h4 className="font-semibold mb-2">All Birthday Reminders (Students & Teachers)</h4><div className="space-y-1 text-sm">{birthdayNotices.length===0?<p className="text-muted-foreground">No reminders</p>:birthdayNotices.map((b)=><p key={b.id}>{b.label}</p>)}</div></div></div>
             <div className="bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-black border rounded-lg p-6">
               <h3 className="text-white font-semibold mb-4">Quick Actions</h3>
               <div className="space-y-2">

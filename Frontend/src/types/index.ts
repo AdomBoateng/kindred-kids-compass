@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   churchId: string;
   avatar?: string;
+  dateOfBirth?: string;
 }
 
 export interface Church {
@@ -31,6 +32,7 @@ export interface Student {
   classId: string;
   churchId: string;
   avatar?: string;
+  dateOfBirth?: string;
   joinDate: string;
   gender?: "male" | "female" | "other";
 }

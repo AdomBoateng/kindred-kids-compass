@@ -66,12 +66,16 @@ const App = () => (
             <Route path="/admin/teachers" element={<TeachersPage />} />
             <Route path="/admin/teachers/new" element={<NewTeacherPage />} />
             <Route path="/admin/teachers/:id" element={<ManageTeachersPage />} />
+            <Route path="/admin/teacher/:id" element={<ManageTeachersPage />} />
             <Route path="/admin/classes" element={<ClassesPage />} />
             <Route path="/admin/classes/new" element={<CreateClassPage />} />
             <Route path="/admin/classes/:id" element={<ManageClassPage />} />
+            <Route path="/admin/class/:id" element={<ManageClassPage />} />
             <Route path="/admin/classes/assign" element={<AssignTeachersPage />} />
             <Route path="/admin/students" element={<StudentsPage />} />
             <Route path="/admin/students/new" element={<NewStudentPage />} />
+            <Route path="/admin/students/:id" element={<StudentProfilePage />} />
+            <Route path="/admin/student/:id" element={<StudentProfilePage />} />
             <Route path="/admin/attendance/reports" element={<AttendanceReportsPage />} />
             <Route path="/admin/profile" element={<AdminProfilePage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
@@ -81,7 +85,10 @@ const App = () => (
             {/* Teacher routes */}
             <Route path="/teacher/dashboard" element={<TeacherDashboardPage />} />
             <Route path="/teacher/students" element={<TeacherStudentsPage />} />
+            <Route path="/teacher/students/:id" element={<StudentProfilePage />} />
+            <Route path="/teacher/student/:id" element={<StudentProfilePage />} />
             <Route path="/student/:id" element={<StudentProfilePage />} />
+            <Route path="/students/:id" element={<StudentProfilePage />} />
             <Route path="/teacher/attendance" element={<AttendancePage />} />
             <Route path="/teacher/attendance/new" element={<RecordAttendancePage />} />
             <Route path="/teacher/attendance/details/:date?" element={<AttendanceDetailsPage />} />

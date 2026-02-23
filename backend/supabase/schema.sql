@@ -22,6 +22,7 @@ create table if not exists users (
   full_name text not null,
   email text unique not null,
   phone text,
+  date_of_birth date,
   avatar_url text,
   role app_role not null,
   church_id uuid not null references churches(id) on delete restrict,

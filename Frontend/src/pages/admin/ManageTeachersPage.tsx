@@ -21,19 +21,34 @@ export default function ManageTeachersPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
 
   useEffect(() => {
     if (teacher) {
       setFullName(teacher.name);
       setEmail(teacher.email);
       setPhone("");
+      setDateOfBirth(teacher.dateOfBirth || "");
     }
   }, [teacher]);
 
   const onSave = async () => {
     if (!id) return;
-    await api.updateTeacher(id, { full_name: fullName, email, phone });
+    await api.updateTeacher(id, { full_name: fullName, email, phone, date_of_birth: dateOfBirth || undefined });
     toast({ title: "Teacher updated" });
+  };
+
+
+  const toggleAssign = async (classId: string) => {
+    if (!id) return;
+    if (assigned.some((c) => c.id === classId)) {
+      await api.unassignTeacherFromClass(classId, id);
+      toast({ title: "Unassigned from class" });
+    } else {
+      await api.assignTeacherToClass({ class_id: classId, teacher_id: id });
+      toast({ title: "Assigned to class" });
+    }
+    window.location.reload();
   };
 
   const onDelete = async () => {
@@ -56,14 +71,19 @@ export default function ManageTeachersPage() {
             <div className="grid gap-2"><Label>Full Name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
             <div className="grid gap-2"><Label>Email</Label><Input value={email} onChange={(e) => setEmail(e.target.value)} /></div>
             <div className="grid gap-2"><Label>Phone</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+            <div className="grid gap-2"><Label>Birthday</Label><Input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} /></div>
             <div className="flex gap-3"><Button onClick={onSave}>Save Changes</Button><Button variant="destructive" onClick={onDelete}>Delete Teacher</Button></div>
           </CardContent>
         </Card>
         <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-blue-50">
           <CardHeader><CardTitle>Assigned Classes</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            {assigned.length === 0 && <p className="text-sm text-muted-foreground">No assignments yet.</p>}
-            {assigned.map((c) => <Badge key={c.id} className="mr-2 mb-2">{c.name}</Badge>)}
+            {classes.map((c) => (
+              <div key={c.id} className="flex items-center justify-between py-1">
+                <span className="text-sm">{c.name}</span>
+                <Button size="sm" variant={assigned.some((a) => a.id === c.id) ? "secondary" : "outline"} onClick={() => toggleAssign(c.id)}>{assigned.some((a) => a.id === c.id) ? "Unassign" : "Assign"}</Button>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>

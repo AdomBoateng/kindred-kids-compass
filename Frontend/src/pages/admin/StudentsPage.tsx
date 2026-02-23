@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StudentCard } from "@/components/cards/StudentCard";
 import { useChurchScope } from "@/hooks/use-church-scope";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2, FileEdit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { LogoLoader } from "@/components/common/LogoLoader";
@@ -20,6 +20,17 @@ export default function StudentsPage() {
   const getClassInfo = (classId: string) => {
     const classData = classes.find((cls) => cls.id === classId);
     return classData ? { id: classData.id, name: classData.name } : { id: "", name: "No Class Assigned" };
+  };
+
+  const handleEditStudent = async (studentId: string, currentName: string, currentDob: string) => {
+    const [firstName, ...rest] = currentName.split(" ");
+    const lastName = rest.join(" ");
+    const nextFirst = prompt("First name", firstName) || firstName;
+    const nextLast = prompt("Last name", lastName) || lastName;
+    const nextDob = prompt("Date of birth (YYYY-MM-DD)", currentDob) || currentDob;
+    await api.updateStudentAsAdmin(studentId, { first_name: nextFirst, last_name: nextLast, date_of_birth: nextDob });
+    toast({ title: "Student updated" });
+    window.location.reload();
   };
 
   const handleDeleteStudent = async (studentId: string, studentName: string) => {
@@ -39,7 +50,7 @@ export default function StudentsPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredStudents.map((student) => (
-          <div key={student.id} className="relative rounded-2xl border-0 shadow-xl bg-gradient-to-br from-sky-50 to-indigo-50 p-2">
+          <div key={student.id} className="relative rounded-2xl border-0 shadow-xl bg-[#040273] hover:bg-[#FFC107] transition-colors duration-200 text-white hover:text-black p-2">
             <StudentCard student={student} classInfo={getClassInfo(student.classId)} />
             <Button variant="destructive" size="sm" className="absolute top-2 right-2 z-10" onClick={() => handleDeleteStudent(student.id, `${student.firstName} ${student.lastName}`)}><Trash2 className="h-4 w-4" /></Button>
           </div>

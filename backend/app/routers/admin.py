@@ -52,6 +52,7 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
         {
             "email": payload.email,
             "email_confirm": True,
+            "password": payload.password,
             "user_metadata": {"full_name": payload.full_name, "role": "teacher", "church_id": profile["church_id"]},
         }
     )

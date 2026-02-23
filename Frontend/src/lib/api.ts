@@ -88,7 +88,7 @@ export const api = {
 
   getAdminDashboard: () => request<{ students: number; classes: number; teachers: number }>("/api/v1/admin/dashboard", { requiresAuth: true }),
   getTeachers: () => request<Array<{ id: string; full_name: string; email: string; phone?: string; avatar_url?: string; date_of_birth?: string; role: "teacher"; church_id: string }>>("/api/v1/admin/teachers", { requiresAuth: true }),
-  createTeacher: (payload: { full_name: string; email: string; phone?: string; date_of_birth?: string }) => request("/api/v1/admin/teachers", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
+  createTeacher: (payload: { full_name: string; email: string; phone?: string; date_of_birth?: string; password: string }) => request("/api/v1/admin/teachers", { method: "POST", body: JSON.stringify(payload), requiresAuth: true }),
   deleteTeacher: (teacherId: string) => request<{ deleted: boolean }>(`/api/v1/admin/teachers/${teacherId}`, { method: "DELETE", requiresAuth: true }),
   updateTeacher: (teacherId: string, payload: { full_name?: string; email?: string; phone?: string; avatar_url?: string; date_of_birth?: string }) => request(`/api/v1/admin/teachers/${teacherId}`, { method: "PATCH", body: JSON.stringify(payload), requiresAuth: true }),
   getClasses: () => request<Array<{ id: string; name: string; description?: string; age_group: string; church_id: string; class_teachers?: Array<{ teacher_id: string }> }>>("/api/v1/admin/classes", { requiresAuth: true }),

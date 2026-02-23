@@ -9,6 +9,7 @@ class TeacherCreate(BaseModel):
     email: str = Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     phone: Optional[str] = None
     date_of_birth: Optional[date] = None
+    password: str = Field(min_length=6)
 
 
 class TeacherOut(BaseModel):

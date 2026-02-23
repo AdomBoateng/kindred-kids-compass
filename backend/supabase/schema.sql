@@ -22,6 +22,7 @@ create table if not exists users (
   full_name text not null,
   email text unique not null,
   phone text,
+  date_of_birth date,
   avatar_url text,
   role app_role not null,
   church_id uuid not null references churches(id) on delete restrict,
@@ -106,6 +107,19 @@ create table if not exists student_notes (
   author_id uuid not null references users(id) on delete restrict,
   note text not null,
   created_at timestamptz not null default now()
+);
+
+
+create table if not exists user_settings (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null unique references users(id) on delete cascade,
+  security jsonb not null default '{}'::jsonb,
+  notifications jsonb not null default '{}'::jsonb,
+  privacy jsonb not null default '{}'::jsonb,
+  advanced jsonb not null default '{}'::jsonb,
+  display jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists notifications (
@@ -235,6 +249,7 @@ alter table performance_tests enable row level security;
 alter table performance_scores enable row level security;
 alter table student_notes enable row level security;
 alter table notifications enable row level security;
+alter table user_settings enable row level security;
 
 create policy "same church users" on users for select using (
   church_id = (select church_id from users where id = auth.uid())
@@ -254,6 +269,13 @@ create policy "same church notifications" on notifications for select using (
   church_id = (select church_id from users where id = auth.uid())
 );
 
+
+create policy "own settings" on user_settings for all using (
+  user_id = auth.uid()
+) with check (
+  user_id = auth.uid()
+);
+
 -- Storage bucket setup (run once; adjust for existing bucket)
 insert into storage.buckets (id, name, public)
 values ('student-avatars', 'student-avatars', true)
@@ -267,6 +289,24 @@ create policy "avatars church write"
 on storage.objects for insert
 with check (
   bucket_id = 'student-avatars'
+  and (storage.foldername(name))[1] = (
+    select church_id::text from users where id = auth.uid()
+  )
+);
+
+
+insert into storage.buckets (id, name, public)
+values ('user-avatars', 'user-avatars', true)
+on conflict (id) do nothing;
+
+create policy "user avatars public read"
+on storage.objects for select
+using (bucket_id = 'user-avatars');
+
+create policy "user avatars church write"
+on storage.objects for insert
+with check (
+  bucket_id = 'user-avatars'
   and (storage.foldername(name))[1] = (
     select church_id::text from users where id = auth.uid()
   )

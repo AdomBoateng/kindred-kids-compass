@@ -11,15 +11,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
-import { getChurchById } from '@/lib/mock-data';
 import { Bell, Menu, X } from 'lucide-react';
+import { api } from '@/lib/api';
+import { useChurchScope } from "@/hooks/use-church-scope";
 import logo from '../../assets/logo.png';
 
 export function Header() {
   const { user, logout } = useAuth();
-  const church = getChurchById(user?.churchId);
+  const { church } = useChurchScope();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string }>>([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +31,14 @@ export function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+
+  useEffect(() => {
+    if (!user) return;
+    api.getNotifications().then((items) => {
+      setNotifications(items.map((item) => ({ id: item.id, title: item.title, message: item.message })));
+    }).catch(() => setNotifications([]));
+  }, [user]);
 
   const getInitials = (name: string) => {
     return name
@@ -89,30 +99,23 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative">
                     <Bell className="h-5 w-5" />
-                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center">3</span>
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center">{notifications.length}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-72">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <div>
-                      <p className="font-medium">Birthday Alert!</p>
-                      <p className="text-sm text-muted-foreground">Emma Johnson's birthday is tomorrow</p>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <div>
-                      <p className="font-medium">New Student Added</p>
-                      <p className="text-sm text-muted-foreground">Michael Taylor joined Preschool Class</p>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <div>
-                      <p className="font-medium">Test Scores Updated</p>
-                      <p className="text-sm text-muted-foreground">10 students completed their Bible quiz</p>
-                    </div>
-                  </DropdownMenuItem>
+                  {notifications.length === 0 && (
+                    <DropdownMenuItem>No notifications yet</DropdownMenuItem>
+                  )}
+                  {notifications.map((notification) => (
+                    <DropdownMenuItem key={notification.id}>
+                      <div>
+                        <p className="font-medium">{notification.title}</p>
+                        <p className="text-sm text-muted-foreground">{notification.message}</p>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
 

@@ -115,6 +115,15 @@ export default function NewTeacherPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.password || formData.password.length < 6) {
+      toast({
+        title: "Weak password",
+        description: "Password must be at least 6 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -130,6 +139,7 @@ export default function NewTeacherPage() {
         email: formData.email,
         phone: formData.phone || undefined,
         date_of_birth: formData.dateOfBirth || undefined,
+        password: formData.password,
       });
 
       toast({

@@ -29,7 +29,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Student } from "@/types";
-import { mockStudents } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 
 interface StudentFormSheetProps {

@@ -17,8 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
-import { mockStudents } from "@/lib/mock-data";
+import { useChurchScope } from "@/hooks/use-church-scope";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 
 const noteCategories = ["Behavior", "Academic", "Social", "Special Needs", "Parent Communication", "General"];
 
@@ -30,7 +31,8 @@ export default function AddStudentNotePage() {
   const [content, setContent] = useState("");
   const { toast } = useToast();
   
-  const student = mockStudents.find(s => s.id === id);
+  const { students } = useChurchScope();
+  const student = students.find((s) => s.id === id);
   
   if (!student) {
     return (
@@ -48,8 +50,8 @@ export default function AddStudentNotePage() {
   
   const fullName = `${student.firstName} ${student.lastName}`;
   
-  const handleSubmit = () => {
-    if (!noteCategory || !title || !content) {
+  const handleSubmit = async () => {
+    if (!noteCategory || !title || !content || !id) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -57,17 +59,24 @@ export default function AddStudentNotePage() {
       });
       return;
     }
-    
-    console.log('Note added for:', fullName);
-    console.log('Date:', date);
-    console.log('Category:', noteCategory);
-    console.log('Title:', title);
-    console.log('Content:', content);
-    
-    toast({
-      title: "Note Added",
-      description: `Successfully added note for ${fullName}`,
-    });
+
+    try {
+      await api.addStudentNote({
+        student_id: id,
+        note: `[${date}] [${noteCategory}] ${title}: ${content}`,
+      });
+
+      toast({
+        title: "Note Added",
+        description: `Successfully added note for ${fullName}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Unable to save note",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -1,5 +1,14 @@
 import { Attendance, Church, Class, Student, TestScore, User } from "@/types";
 
+const RUNTIME_DATA_STORAGE_KEY = "runtimeScopeData";
+
+type RuntimeScopeData = {
+  church?: Church;
+  users?: User[];
+  classes?: Class[];
+  students?: Student[];
+};
+
 export const mockChurches: Church[] = [
   { id: "church-1", name: "Kindred Kids", branchName: "Central Church", location: "Downtown" },
   { id: "church-2", name: "Kindred Kids", branchName: "North Branch", location: "Northside" },
@@ -102,6 +111,23 @@ export const mockTestScores: TestScore[] = [
   { id: "score-3", studentId: "student-7", testName: "Bible Memory Verse", score: 9, maxScore: 10, date: "2023-05-07", churchId: "church-2" },
 ];
 
+function getRuntimeData(): RuntimeScopeData {
+  const raw = localStorage.getItem(RUNTIME_DATA_STORAGE_KEY);
+  if (!raw) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(raw) as RuntimeScopeData;
+  } catch {
+    return {};
+  }
+}
+
+export function setRuntimeScopeData(data: RuntimeScopeData) {
+  localStorage.setItem(RUNTIME_DATA_STORAGE_KEY, JSON.stringify(data));
+}
+
 function getDateStringForUpcomingBirthday(daysFromNow: number): string {
   const today = new Date();
   const birthYear = Math.floor(Math.random() * (2019 - 2013 + 1)) + 2013;
@@ -113,46 +139,65 @@ function getDateStringForUpcomingBirthday(daysFromNow: number): string {
 
 export function getChurchById(churchId?: string): Church | undefined {
   if (!churchId) return undefined;
+  const runtime = getRuntimeData();
+  if (runtime.church && runtime.church.id === churchId) {
+    return runtime.church;
+  }
   return mockChurches.find((church) => church.id === churchId);
 }
 
 export function getUsersByChurchId(churchId?: string): User[] {
+  const runtimeUsers = getRuntimeData().users;
+  if (runtimeUsers?.length) {
+    if (!churchId) return runtimeUsers;
+    return runtimeUsers.filter((user) => user.churchId === churchId);
+  }
   if (!churchId) return mockUsers;
   return mockUsers.filter((user) => user.churchId === churchId);
 }
 
 export function getClassesByChurchId(churchId?: string): Class[] {
+  const runtimeClasses = getRuntimeData().classes;
+  if (runtimeClasses?.length) {
+    if (!churchId) return runtimeClasses;
+    return runtimeClasses.filter((classItem) => classItem.churchId === churchId);
+  }
   if (!churchId) return mockClasses;
   return mockClasses.filter((classItem) => classItem.churchId === churchId);
 }
 
 export function getStudentsByChurchId(churchId?: string): Student[] {
+  const runtimeStudents = getRuntimeData().students;
+  if (runtimeStudents?.length) {
+    if (!churchId) return runtimeStudents;
+    return runtimeStudents.filter((student) => student.churchId === churchId);
+  }
   if (!churchId) return mockStudents;
   return mockStudents.filter((student) => student.churchId === churchId);
 }
 
 export function getClassById(classId: string): Class | undefined {
-  return mockClasses.find((classItem) => classItem.id === classId);
+  return getClassesByChurchId().find((classItem) => classItem.id === classId);
 }
 
 export function getStudentById(studentId: string): Student | undefined {
-  return mockStudents.find((student) => student.id === studentId);
+  return getStudentsByChurchId().find((student) => student.id === studentId);
 }
 
 export function getStudentsByClassId(classId: string, churchId?: string): Student[] {
-  return mockStudents.filter((student) => student.classId === classId && (!churchId || student.churchId === churchId));
+  return getStudentsByChurchId(churchId).filter((student) => student.classId === classId);
 }
 
 export function getTeachersByClassId(classId: string, churchId?: string): User[] {
-  const classItem = mockClasses.find((item) => item.id === classId && (!churchId || item.churchId === churchId));
+  const classItem = getClassesByChurchId(churchId).find((item) => item.id === classId);
   if (!classItem) return [];
 
-  return mockUsers.filter(
+  return getUsersByChurchId(churchId).filter(
     (user) => user.role === "teacher" && classItem.teacherIds.includes(user.id) && (!churchId || user.churchId === churchId),
   );
 }
 
 export function getPrimaryClassForTeacher(teacherId?: string, churchId?: string): Class | undefined {
   if (!teacherId) return undefined;
-  return mockClasses.find((classItem) => classItem.teacherIds.includes(teacherId) && (!churchId || classItem.churchId === churchId));
+  return getClassesByChurchId(churchId).find((classItem) => classItem.teacherIds.includes(teacherId));
 }

@@ -38,7 +38,7 @@ async def update_church(payload: dict, profile=Depends(require_role("admin"))):
 async def list_teachers(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("users")
-        .select("id, full_name, email, role, church_id")
+        .select("id, full_name, email, phone, avatar_url, date_of_birth, role, church_id")
         .eq("church_id", profile["church_id"])
         .eq("role", "teacher")
         .execute()
@@ -68,11 +68,25 @@ async def create_teacher(payload: TeacherCreate, profile=Depends(require_role("a
                 "phone": payload.phone,
                 "role": "teacher",
                 "church_id": profile["church_id"],
+                "date_of_birth": str(payload.date_of_birth) if payload.date_of_birth else None,
             }
         )
         .execute()
     )
     return insert.data[0]
+
+
+@router.patch("/teachers/{teacher_id}")
+async def update_teacher(teacher_id: str, payload: dict, profile=Depends(require_role("admin"))):
+    allowed = {"full_name", "email", "phone", "avatar_url", "date_of_birth"}
+    updates = {k: v for k, v in payload.items() if k in allowed}
+    if not updates:
+        raise HTTPException(status_code=400, detail="No valid fields provided")
+
+    res = supabase_admin.table("users").update(updates).eq("id", teacher_id).eq("church_id", profile["church_id"]).eq("role", "teacher").execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    return res.data[0]
 
 
 @router.delete("/teachers/{teacher_id}")
@@ -84,7 +98,7 @@ async def remove_teacher(teacher_id: str, profile=Depends(require_role("admin"))
 
 @router.get("/classes")
 async def list_classes(profile=Depends(require_role("admin"))):
-    res = supabase_admin.table("classes").select("*").eq("church_id", profile["church_id"]).order("name").execute()
+    res = supabase_admin.table("classes").select("*, class_teachers(teacher_id)").eq("church_id", profile["church_id"]).order("name").execute()
     return res.data
 
 
@@ -124,11 +138,18 @@ async def assign_teacher(payload: TeacherClassAssign, profile=Depends(require_ro
     return record.data[0]
 
 
+
+
+@router.delete("/classes/{class_id}/teachers/{teacher_id}")
+async def unassign_teacher(class_id: str, teacher_id: str, profile=Depends(require_role("admin"))):
+    supabase_admin.table("class_teachers").delete().eq("class_id", class_id).eq("teacher_id", teacher_id).execute()
+    return {"deleted": True}
+
 @router.get("/students")
 async def list_students(profile=Depends(require_role("admin"))):
     res = (
         supabase_admin.table("students")
-        .select("id, class_id, first_name, last_name, date_of_birth, guardian_name, guardian_contact, allergies, notes, gender, avatar_url")
+        .select("id, church_id, class_id, first_name, last_name, date_of_birth, guardian_name, guardian_contact, allergies, notes, gender, avatar_url")
         .eq("church_id", profile["church_id"])
         .order("first_name")
         .execute()

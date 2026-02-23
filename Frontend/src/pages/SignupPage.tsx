@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import logo from "../assets/logo.png";
 import { containsUnsafeInput, isValidEmail, sanitizeText } from "@/lib/security";
 import { api } from "@/lib/api";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ export default function SignupPage() {
   const [district, setDistrict] = useState("");
   const [area, setArea] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
